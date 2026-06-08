@@ -1,6 +1,6 @@
-# =================================================================================
-# Variables
-# =================================================================================
+# ================================================================================
+# Cognito locals
+# ================================================================================
 
 locals {
   spa_origin = format(
@@ -10,12 +10,12 @@ locals {
   )
 }
 
-# =================================================================================
+# ================================================================================
 # Cognito User Pool
-# =================================================================================
+# ================================================================================
 
-resource "aws_cognito_user_pool" "resume_app" {
-  name = "resume-app-user-pool-${random_id.bucket_suffix.hex}"
+resource "aws_cognito_user_pool" "rag_app" {
+  name = "rag-app-user-pool-${random_id.bucket_suffix.hex}"
 
   username_attributes      = ["email"]
   auto_verified_attributes = ["email"]
@@ -43,23 +43,22 @@ resource "aws_cognito_user_pool" "resume_app" {
   }
 }
 
-# =================================================================================
+# ================================================================================
 # Cognito Hosted UI domain
-# =================================================================================
+# ================================================================================
 
-resource "aws_cognito_user_pool_domain" "resume_app" {
-  domain       = "resume-app-auth-${random_id.bucket_suffix.hex}"
-  user_pool_id = aws_cognito_user_pool.resume_app.id
+resource "aws_cognito_user_pool_domain" "rag_app" {
+  domain       = "rag-app-auth-${random_id.bucket_suffix.hex}"
+  user_pool_id = aws_cognito_user_pool.rag_app.id
 }
 
-# =================================================================================
-# Cognito User Pool Client
-# SPA client for Hosted UI login
-# =================================================================================
+# ================================================================================
+# Cognito User Pool Client — SPA PKCE client
+# ================================================================================
 
-resource "aws_cognito_user_pool_client" "resume_app" {
-  name         = "resume-app-spa-client-${random_id.bucket_suffix.hex}"
-  user_pool_id = aws_cognito_user_pool.resume_app.id
+resource "aws_cognito_user_pool_client" "rag_app" {
+  name         = "rag-app-spa-client-${random_id.bucket_suffix.hex}"
+  user_pool_id = aws_cognito_user_pool.rag_app.id
 
   generate_secret = false
 
@@ -78,42 +77,22 @@ resource "aws_cognito_user_pool_client" "resume_app" {
   logout_urls   = ["${local.spa_origin}/index.html"]
 }
 
-# =================================================================================
-# Outputs
-# =================================================================================
-
-# ---------------------------------------------------------------------------------
-# Cognito User Pool ID
-# Consumed by apply.sh to configure frontend OAuth2 settings
-# ---------------------------------------------------------------------------------
+# ================================================================================
+# Outputs consumed by apply.sh to configure the frontend
+# ================================================================================
 
 output "cognito_user_pool_id" {
-  value = aws_cognito_user_pool.resume_app.id
+  value = aws_cognito_user_pool.rag_app.id
 }
-
-# ---------------------------------------------------------------------------------
-# Cognito App Client ID
-# Used by the SPA as the OAuth2 client_id in authorization requests
-# ---------------------------------------------------------------------------------
 
 output "cognito_user_pool_client_id" {
-  value = aws_cognito_user_pool_client.resume_app.id
+  value = aws_cognito_user_pool_client.rag_app.id
 }
-
-# ---------------------------------------------------------------------------------
-# Cognito Hosted UI domain prefix
-# Used by apply.sh to construct the full Hosted UI base URL for the frontend
-# ---------------------------------------------------------------------------------
 
 output "cognito_domain" {
-  value = aws_cognito_user_pool_domain.resume_app.domain
+  value = aws_cognito_user_pool_domain.rag_app.domain
 }
 
-# ---------------------------------------------------------------------------------
-# Cognito Hosted UI base URL
-# Full URL consumed by apply.sh to populate COGNITO_DOMAIN in config.js
-# ---------------------------------------------------------------------------------
-
 output "cognito_hosted_ui_base" {
-  value = "https://${aws_cognito_user_pool_domain.resume_app.domain}.auth.${data.aws_region.current.region}.amazoncognito.com"
+  value = "https://${aws_cognito_user_pool_domain.rag_app.domain}.auth.${data.aws_region.current.region}.amazoncognito.com"
 }

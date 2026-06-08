@@ -1,57 +1,33 @@
 #!/bin/bash
 # ================================================================================
-# File: apply.sh
-# ================================================================================
+# apply.sh
+# Full deployment of the RAG demo application stack.
 #
-# Purpose:
-#   Orchestrates end-to-end deployment of the resume scorer application stack.
-#
-#   Workflow:
-#     - Validate the local environment and AWS credentials
-#     - Deploy backend (Lambdas, API Gateway, Cognito) via Terraform
-#     - Discover the web S3 bucket and derive its region-aware URL
-#     - Generate the web client artifacts (index.html, config.json)
-#     - Deploy the web client via Terraform, targeting the existing bucket
-#
-# ================================================================================
-# GLOBAL CONFIGURATION
+# Workflow:
+#   1. Validate environment and AWS credentials
+#   2. Install Python deps into the Lambda source directory
+#   3. Deploy backend (Lambdas, API Gateway, Cognito, SQS, DynamoDB, S3)
+#   4. Generate config.js for the SPA
+#   5. Upload the SPA to S3
+#   6. Run post-deploy validation
 # ================================================================================
 
-# ------------------------------------------------------------------------------
-# AWS REGION CONFIGURATION
-# ------------------------------------------------------------------------------
-# Defines the default AWS region used by AWS CLI and Terraform.
-# ------------------------------------------------------------------------------
+# ================================================================================
+# Global configuration
+# ================================================================================
+
 export AWS_DEFAULT_REGION="us-east-1"
 
-# ------------------------------------------------------------------------------
-# BEDROCK MODEL CONFIGURATION
-# ------------------------------------------------------------------------------
-# Exports BEDROCK_MODEL_ID so check_env.sh probes the correct model.
-# Also passed to Terraform so the worker Lambda env var stays in sync.
-# ------------------------------------------------------------------------------
+# Exports BEDROCK_MODEL_ID — sourced before set -euo pipefail so the file can
+# use simple variable assignments without tripping the unbound-variable check.
 source "$(dirname "$0")/bedrock-config.sh"
 
-# ------------------------------------------------------------------------------
-# STRICT SHELL EXECUTION MODE
-# ------------------------------------------------------------------------------
-# Enforces defensive shell behavior:
-#   -e  Exit immediately if any command fails
-#   -u  Treat unset variables as errors
-#   -o pipefail  Fail pipelines if any command fails
-# ------------------------------------------------------------------------------
 set -euo pipefail
 
 # ================================================================================
-# ENVIRONMENT PRE-CHECK
+# Environment pre-check
 # ================================================================================
 
-# ------------------------------------------------------------------------------
-# ENVIRONMENT VALIDATION
-# ------------------------------------------------------------------------------
-# Ensures required tools, credentials, and environment variables exist
-# before any deployment is attempted.
-# ------------------------------------------------------------------------------
 echo "NOTE: Running environment validation..."
 
 ./check_env.sh
@@ -61,24 +37,17 @@ if [ $? -ne 0 ]; then
 fi
 
 # ================================================================================
-# BACKEND DEPLOYMENT (LAMBDAS + API GATEWAY + COGNITO)
+# Backend deployment
 # ================================================================================
 
-# ------------------------------------------------------------------------------
-# DEPLOY BACKEND INFRASTRUCTURE
-# ------------------------------------------------------------------------------
-# Applies Terraform in 01-lambdas to create the backend stack, including:
-#   - Lambda functions
-#   - API Gateway (HTTP API)
-#   - Cognito (domain + app client outputs are read later)
-# ------------------------------------------------------------------------------
-echo "NOTE: Building Application Core Services..."
+echo "NOTE: Deploying backend infrastructure..."
 
-cd 01-core || {
-  echo "ERROR: 01-core directory missing."
-  exit 1
-}
+cd 01-core || { echo "ERROR: 01-core directory missing."; exit 1; }
 
+# ------------------------------------------------------------------------------
+# Install Lambda dependencies into the code directory so they are included
+# in the zip archive that Terraform packages and deploys.
+# ------------------------------------------------------------------------------
 cd code
 pip install -r requirements.txt -t .
 cd ..
@@ -94,31 +63,30 @@ export COGNITO_CLIENT_ID=$(terraform output -raw cognito_user_pool_client_id)
 
 cd .. || exit 1
 
-# ------------------------------------------------------------------------------
-# DEPLOYING WEB CLIENT ARTIFACTS
-# ------------------------------------------------------------------------------
+# ================================================================================
+# Frontend deployment
+# ================================================================================
+
 echo "NOTE: Deploying web application..."
 
-cd 02-webapp || {
-  echo "ERROR: 02-webapp directory missing."
-  exit 1
-}
+cd 02-webapp || { echo "ERROR: 02-webapp directory missing."; exit 1; }
 
 envsubst < js/config.js.tmpl > js/config.js || {
   echo "ERROR: Failed to generate config.js."
   exit 1
 }
 
-aws s3 cp . s3://${BUCKET_NAME} --recursive
+aws s3 cp . s3://${BUCKET_NAME} --recursive --exclude "*.tmpl"
 
 cd ..
 
-# ------------------------------------------------------------------------------
-# RUNTIME VALIDATION
-# ------------------------------------------------------------------------------
+# ================================================================================
+# Post-deploy validation
+# ================================================================================
+
 echo "NOTE: Running post-deployment validation..."
 ./validate.sh
 
 # ================================================================================
-# END OF SCRIPT
+# End
 # ================================================================================

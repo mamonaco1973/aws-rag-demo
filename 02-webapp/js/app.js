@@ -1,845 +1,322 @@
-/* ========================================================================== */
-/* app.js                                                                      */
-/* Dashboard controller. Initializes auth state, wires up the new-job form,  */
-/* resume selector, and job list on DOMContentLoaded.                         */
-/* ========================================================================== */
+/* ============================================================================ */
+/* app.js                                                                       */
+/* Main application controller.                                                */
+/* Initializes auth, loads conversations, handles the chat input loop.        */
+/* ============================================================================ */
 
-import { createJob, listResumes, register, getUsage,
-         listFolders, createFolder, deleteFolder } from "./api.js";
-import { loadJobs, hasPendingJobs,
-         setFolderFilter, setStatusFilter,
-         setSearchFilter }                         from "./jobs.js";
-import { bindResumeHandlers, openResumeManager }   from "./resumes.js";
-import { getLoginUrl, getLogoutUrl, isLoggedIn }   from "./auth.js";
-import { showAlert, showConfirm, showPrompt }       from "./modal.js";
+import { isAuthenticated, getLoginUrl, clearTokens } from "./auth.js";
+import {
+  registerUser, getUsage,
+  createConversation, listQueries, submitQuery,
+} from "./api.js";
+import {
+  initSidebar, refreshSidebar,
+  setActiveConversation, prependConversation, updateConvTitle,
+} from "./sidebar.js";
+import {
+  renderHistory, appendUserBubble,
+  appendPendingBubble, stopAllPolls,
+} from "./chat.js";
+import { showAlert } from "./modal.js";
 
-let lastSelectedResumeId = "";
-let autoRefreshTimer     = null;
-let countdownInterval    = null;
-let folders              = [];
-let currentFolderId      = "";
+/* ---------------------------------------------------------------------------- */
+/* Application state                                                             */
+/* ---------------------------------------------------------------------------- */
 
-const AUTO_REFRESH_SECONDS = 5;
+let _activeConvId = null;
+let _sending      = false;
 
-document.addEventListener("DOMContentLoaded", async () => {
-  updateAuthButtons();
-  bindUiHandlers();
-  bindResumeHandlers();
+/* ---------------------------------------------------------------------------- */
+/* Boot                                                                          */
+/* ---------------------------------------------------------------------------- */
 
-  if (!isLoggedIn()) {
-    showNotLoggedInMessage();
+async function boot() {
+  if (!isAuthenticated()) {
+    _showSignIn();
     return;
   }
 
-  // Check user cap before loading the dashboard
+  // Register user (idempotent — creates usage record on first visit)
   try {
-    await register();
-  } catch (error) {
-    if (error.message === "user_limit_reached") {
+    const reg = await registerUser();
+    if (reg?.error === "user_limit_reached") {
+      _showSignIn();
       await showAlert(
-        "This app has reached its maximum number of free users.\n\n" +
-        "To request access, email mamonaco1973@gmail.com.",
-        { title: "Registration Closed" }
+        "Access unavailable",
+        "The demo is currently at capacity. Email mamonaco1973@gmail.com to request access."
       );
-      localStorage.removeItem("id_token");
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      window.location.href = getLogoutUrl();
+      return;
+    }
+  } catch (err) {
+    if (err.status === 403) {
+      _showSignIn();
+      await showAlert(
+        "Access unavailable",
+        "The demo is currently at capacity. Email mamonaco1973@gmail.com to request access."
+      );
       return;
     }
   }
 
-  try {
-    restoreFilterState();
-    await loadFolders();
-    await refreshApp();
-    await updateTokenUsage();
-  } catch (error) {
-    console.error("Failed to load dashboard:", error);
-  }
-});
+  // Show app shell
+  document.getElementById("app-shell").classList.remove("hidden");
+  document.getElementById("btn-sign-out").classList.remove("hidden");
 
-/* -------------------------------------------------------------------------- */
-/* Function: bindUiHandlers                                                    */
-/* Purpose: Attach all event listeners for the dashboard: modal open/close,  */
-/*          source type toggle, form submit, live validation, and auth        */
-/*          buttons. Called once on DOMContentLoaded.                         */
-/* -------------------------------------------------------------------------- */
-function bindUiHandlers() {
-  const newJobModal = document.getElementById("new-job-modal");
-  const resumeModal = document.getElementById("resume-modal");
-
-  const btnNewJob = document.getElementById("btn-new-job");
-  const btnManageResumes = document.getElementById("btn-manage-resumes");
-  const cancelNewJob = document.getElementById("cancel-new-job");
-  const btnSignIn = document.getElementById("btn-sign-in");
-  const btnSignOut = document.getElementById("btn-sign-out");
-  
-  const sourceType = document.getElementById("source-type");
-  const resumeSelect = document.getElementById("resume-select");
-  const newJobForm = document.getElementById("new-job-form");
-  
-  // ---------------------------------------------------------------------------
-  // Track last selected resume
-  // ---------------------------------------------------------------------------
-
-  resumeSelect?.addEventListener("change", () => {
-    lastSelectedResumeId = resumeSelect.value;
+  // Init sidebar
+  initSidebar({
+    onSelect: _selectConversation,
+    onDelete: _onConversationDeleted,
   });
 
-  // ---------------------------------------------------------------------------
-  // Open "Score New Job"
-  // ---------------------------------------------------------------------------
+  // Wire controls
+  _wireControls();
 
-  btnNewJob?.addEventListener("click", async () => {
-    try {
-      resumeModal?.classList.add("hidden");
-      resetNewJobForm();
-      const hasResumes = await populateResumeSelect();
-      if (!hasResumes) {
-        await showAlert(
-          "Please define a resume before scoring a job.",
-          { title: "No Resume Found" }
-        );
-        await openResumeManager();
-        return;
-      }
-      populateJobFolderSelect();
-      updateSourceFields();
-      newJobModal?.classList.remove("hidden");
-      updateNewJobFormValidation();
-    } catch (error) {
-      console.error("Failed to load resumes:", error);
-      await showAlert(`Failed to load resumes: ${error.message}`, { title: "Error" });
-    }
-  });
+  // Load sidebar + token ring
+  await Promise.all([refreshSidebar(), _refreshUsage()]);
+}
 
-  // ---------------------------------------------------------------------------
-  // Open "Manage Resumes"
-  // ---------------------------------------------------------------------------
+/* ---------------------------------------------------------------------------- */
+/* Sign-in modal                                                                 */
+/* ---------------------------------------------------------------------------- */
 
-  btnManageResumes?.addEventListener("click", async () => {
-    newJobModal?.classList.add("hidden");
-    await openResumeManager();
-  });
-
-  // ---------------------------------------------------------------------------
-  // Cancel new job modal
-  // ---------------------------------------------------------------------------
-
-  cancelNewJob?.addEventListener("click", () => {
-    newJobModal?.classList.add("hidden");
-  });
-
-  // ---------------------------------------------------------------------------
-  // Source type toggle
-  // ---------------------------------------------------------------------------
-
-  sourceType?.addEventListener("change", () => {
-    setCookie("jobFilter_sourceType", sourceType.value);
-    updateSourceFields();
-  });
-
-// ---------------------------------------------------------------------------
-// Live validation listeners
-// ---------------------------------------------------------------------------
-
-resumeSelect?.addEventListener("change", updateNewJobFormValidation);
-
-sourceType?.addEventListener("change", updateNewJobFormValidation);
-
-document
-  .getElementById("job-url")
-  ?.addEventListener("input", updateNewJobFormValidation);
-
-document
-  .getElementById("job-description")
-  ?.addEventListener("input", updateNewJobFormValidation);
-
-document
-  .getElementById("linkedin-job-ids")
-  ?.addEventListener("input", updateNewJobFormValidation);
-
-
-  newJobForm?.addEventListener("submit", async (event) => {
-  event.preventDefault();
-
-  const validation = validateNewJobForm();
-
-  clearNewJobFormErrors();
-
-  if (!validation.isValid) {
-    renderNewJobFormErrors(validation.errors);
-    return;
-  }
-
-  const submitBtn = document.getElementById("submit-new-job");
-  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = "Submitting..."; }
-  const newJobModal = document.getElementById("new-job-modal");
-  newJobModal?.classList.add("modal-submitting");
-  try {
-    await submitJobScoringRequest();
-  } finally {
-    newJobModal?.classList.remove("modal-submitting");
-    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = "Submit"; }
-  }
-  newJobModal?.classList.add("hidden");
-  resetNewJobForm();
-  await refreshApp();
-
-});
-
-  document.getElementById("btn-refresh")?.addEventListener("click", refreshApp);
-
-  // ---------------------------------------------------------------------------
-  // Folder dropdown
-  // ---------------------------------------------------------------------------
-
-  document.getElementById("folder-select")?.addEventListener("change", (e) => {
-    currentFolderId = e.target.value;
-    setFolderFilter(currentFolderId);
-    setCookie("jobFilter_folder", currentFolderId);
-    updateDeleteFolderButton();
-    refreshApp();
-  });
-
-  document.getElementById("btn-new-folder")?.addEventListener("click", async () => {
-    const name = await showPrompt("Folder name", {
-      title: "New Folder", placeholder: "Enter folder name...", confirmText: "Create",
-    });
-    if (!name) return;
-    if (folders.some((f) => f.name.toLowerCase() === name.toLowerCase())) {
-      await showAlert(`A folder named "${name}" already exists.`, { title: "Duplicate Folder" });
-      return;
-    }
-    try {
-      await createFolder({ name });
-      await loadFolders();
-    } catch (error) {
-      await showAlert(`Failed to create folder: ${error.message}`, { title: "Error" });
-    }
-  });
-
-  document.getElementById("btn-delete-folder")?.addEventListener("click", async () => {
-    if (!currentFolderId) return;
-    const folder = folders.find((f) => f.folder_id === currentFolderId);
-    const label  = folder?.name || currentFolderId;
-    const confirmed = await showConfirm(
-      `Delete folder "${label}"? Jobs inside will move to All Jobs.`,
-      { title: "Delete Folder", confirmText: "Delete", danger: true }
-    );
-    if (!confirmed) return;
-    try {
-      await deleteFolder(currentFolderId);
-      currentFolderId = "";
-      setFolderFilter("");
-      setCookie("jobFilter_folder", "");
-      await loadFolders();
-      await refreshApp();
-    } catch (error) {
-      await showAlert(`Failed to delete folder: ${error.message}`, { title: "Error" });
-    }
-  });
-
-  // ---------------------------------------------------------------------------
-  // Filter bar — status + search
-  // ---------------------------------------------------------------------------
-
-  document.getElementById("filter-status")?.addEventListener("change", (e) => {
-    setStatusFilter(e.target.value);
-    setCookie("jobFilter_status", e.target.value);
-    refreshApp();
-  });
-
-  document.getElementById("filter-search")?.addEventListener("input", (e) => {
-    setSearchFilter(e.target.value);
-    setCookie("jobFilter_search", e.target.value);
-    refreshApp();
-  });
-
-  // ---------------------------------------------------------------------------
-  // Help modal
-  // ---------------------------------------------------------------------------
-
-  const helpModal = document.getElementById("help-modal");
-  document.getElementById("btn-help")?.addEventListener("click", () => {
-    helpModal?.classList.remove("hidden");
-  });
-  document.getElementById("btn-help-close")?.addEventListener("click", () => {
-    helpModal?.classList.add("hidden");
-  });
-  helpModal?.addEventListener("click", (e) => {
-    if (e.target === helpModal) helpModal.classList.add("hidden");
-  });
-
-  // ---------------------------------------------------------------------------
-  // Sign in — open preview modal; actual redirect happens inside the modal
-  // ---------------------------------------------------------------------------
-
-  const signInModal = document.getElementById("sign-in-modal");
-
-  btnSignIn?.addEventListener("click", () => {
-    signInModal?.classList.remove("hidden");
-  });
-
-  document.getElementById("btn-cognito-sign-in")?.addEventListener("click", () => {
+function _showSignIn() {
+  document.getElementById("sign-in-modal").classList.remove("hidden");
+  document.getElementById("btn-cognito-sign-in").addEventListener("click", () => {
     window.location.href = getLoginUrl();
   });
+}
 
-  // ---------------------------------------------------------------------------
+/* ---------------------------------------------------------------------------- */
+/* Control wiring                                                                */
+/* ---------------------------------------------------------------------------- */
+
+function _wireControls() {
+  // New chat button
+  document.getElementById("btn-new-chat").addEventListener("click", _startNewChat);
+
   // Sign out
-  // ---------------------------------------------------------------------------
-
-  btnSignOut?.addEventListener("click", () => {
-  localStorage.removeItem("id_token");
-  localStorage.removeItem("access_token");
-  localStorage.removeItem("refresh_token");
-
-  window.location.href = getLogoutUrl();
+  document.getElementById("btn-sign-out").addEventListener("click", () => {
+    clearTokens();
+    window.location.reload();
   });
 
-}
+  // Send button
+  document.getElementById("btn-send").addEventListener("click", _handleSend);
 
-/* -------------------------------------------------------------------------- */
-/* Function: updateSourceFields                                                */
-/* Purpose: Show only the input field group that matches the selected source  */
-/*          type (url, raw_text, or linkedin_job_id); hide the others.       */
-/* -------------------------------------------------------------------------- */
-function updateSourceFields() {
-  const sourceType = document.getElementById("source-type");
-  const urlField = document.getElementById("url-field");
-  const textField = document.getElementById("text-field");
-  const linkedinField = document.getElementById("linkedin-field");
-
-  if (!sourceType) {
-    return;
-  }
-
-  urlField?.classList.add("hidden");
-  textField?.classList.add("hidden");
-  linkedinField?.classList.add("hidden");
-
-  if (sourceType.value === "url") {
-    urlField?.classList.remove("hidden");
-    return;
-  }
-
-  if (sourceType.value === "raw_text") {
-    textField?.classList.remove("hidden");
-    return;
-  }
-
-  if (sourceType.value === "linkedin_job_id") {
-    linkedinField?.classList.remove("hidden");
-  }
-}
-
-/* -------------------------------------------------------------------------- */
-/* Function: populateResumeSelect                                              */
-/* Purpose: Fetch all resumes and rebuild the resume dropdown. Restores the   */
-/*          last-used selection when possible; falls back to the first item.  */
-/* -------------------------------------------------------------------------- */
-async function populateResumeSelect() {
-  const resumeSelect = document.getElementById("resume-select");
-
-  if (!resumeSelect) {
-    return;
-  }
-
-  const resumes = await listResumes();
-
-  resumeSelect.innerHTML = "";
-
-  if (!Array.isArray(resumes) || resumes.length === 0) {
-    const option = document.createElement("option");
-    option.value = "";
-    option.textContent = "No resumes available";
-    option.disabled = true;
-    option.selected = true;
-    resumeSelect.appendChild(option);
-    return false;
-  }
-
-  resumes.forEach((resume) => {
-    const option = document.createElement("option");
-    option.value = resume.resume_id;
-    option.textContent = resume.name || "Untitled Resume";
-    resumeSelect.appendChild(option);
+  // Enter to send (Shift+Enter for newline)
+  document.getElementById("chat-input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      _handleSend();
+    }
   });
 
-  const hasSavedSelection = resumes.some(
-    (resume) => resume.resume_id === lastSelectedResumeId
-  );
+  // Auto-resize textarea
+  document.getElementById("chat-input").addEventListener("input", _autoResize);
 
-  if (hasSavedSelection) {
-    resumeSelect.value = lastSelectedResumeId;
-  } else {
-    resumeSelect.value = resumes[0].resume_id;
-    lastSelectedResumeId = resumes[0].resume_id;
+  // Starter question buttons
+  document.querySelectorAll(".starter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.getElementById("chat-input").value = btn.dataset.q;
+      _autoResize();
+      _handleSend();
+    });
+  });
+}
+
+/* ---------------------------------------------------------------------------- */
+/* New chat                                                                      */
+/* ---------------------------------------------------------------------------- */
+
+async function _startNewChat() {
+  stopAllPolls();
+
+  try {
+    const conv = await createConversation();
+    _activeConvId = conv.conv_id;
+
+    prependConversation(conv);
+    setActiveConversation(_activeConvId);
+
+    // Show empty state, hide log
+    document.getElementById("empty-state").classList.remove("hidden");
+    document.getElementById("chat-log").classList.add("hidden");
+    document.getElementById("chat-log").innerHTML = "";
+
+    document.getElementById("chat-input").focus();
+  } catch (err) {
+    console.error("Failed to create conversation", err);
+    await showAlert("Error", "Failed to start a new chat. Please try again.");
   }
-  return true;
 }
 
-/* -------------------------------------------------------------------------- */
-/* Function: resetNewJobForm                                                   */
-/* Purpose: Clear all new-job form fields and restore the default source type */
-/*          (url), then update the visible source field group.                */
-/* -------------------------------------------------------------------------- */
-function resetNewJobForm() {
-  document.getElementById("new-job-form")?.reset();
+/* ---------------------------------------------------------------------------- */
+/* Select existing conversation                                                  */
+/* ---------------------------------------------------------------------------- */
 
-  const savedSourceType = getCookie("jobFilter_sourceType") || "linkedin_job_id";
-  document.getElementById("source-type").value = savedSourceType;
-  document.getElementById("job-url").value = "";
-  document.getElementById("job-description").value = "";
-  document.getElementById("linkedin-job-ids").value = "";
+async function _selectConversation(convId) {
+  if (convId === _activeConvId) return;
 
-  updateSourceFields();
+  stopAllPolls();
+  _activeConvId = convId;
+  setActiveConversation(convId);
+
+  // Show log, hide empty state
+  document.getElementById("empty-state").classList.add("hidden");
+  document.getElementById("chat-log").classList.remove("hidden");
+  document.getElementById("chat-log").innerHTML = "";
+
+  try {
+    const queries = await listQueries(convId);
+    renderHistory(queries);
+
+    // Re-attach polls for any still-pending queries
+    for (const q of queries) {
+      if (q.status === "pending" || q.status === "processing") {
+        appendPendingBubble(convId, q.query_id, (completed) => {
+          _refreshUsage();
+        });
+      }
+    }
+  } catch (err) {
+    console.error("Failed to load queries", err);
+  }
 }
 
-/* -------------------------------------------------------------------------- */
-/* Function: validateNewJobForm                                                */
-/* Purpose: Collect and validate all new-job form inputs. Returns an object   */
-/*          with isValid and an errors map keyed by field name.               */
-/* -------------------------------------------------------------------------- */
-function validateNewJobForm() {
-  const errors = {};
+/* ---------------------------------------------------------------------------- */
+/* Handle send                                                                   */
+/* ---------------------------------------------------------------------------- */
 
-  const resumeId = document.getElementById("resume-select")?.value.trim() || "";
-  const sourceType = document.getElementById("source-type")?.value || "url";
-  const jobUrl = document.getElementById("job-url")?.value.trim() || "";
-  const jobDescription =
-    document.getElementById("job-description")?.value.trim() || "";
-  const linkedinRaw =
-    document.getElementById("linkedin-job-ids")?.value.trim() || "";
+async function _handleSend() {
+  if (_sending) return;
 
-  const resumeSelect = document.getElementById("resume-select");
-  const hasAvailableResumes = Array.from(resumeSelect?.options || []).some((option) => option.value.trim() !== "");
+  const input    = document.getElementById("chat-input");
+  const errorEl  = document.getElementById("input-error");
+  const question = input.value.trim();
 
-  if (!resumeId) {
-    if (hasAvailableResumes) {
-      errors.resume = "You must select a resume.";
+  errorEl.classList.add("hidden");
+
+  if (!question) return;
+
+  // Create a conversation if none is active
+  if (!_activeConvId) {
+    try {
+      const conv = await createConversation();
+      _activeConvId = conv.conv_id;
+      prependConversation(conv);
+      setActiveConversation(_activeConvId);
+    } catch (err) {
+      errorEl.textContent = "Failed to start conversation. Please try again.";
+      errorEl.classList.remove("hidden");
+      return;
+    }
+  }
+
+  // Switch from empty state to chat log
+  document.getElementById("empty-state").classList.add("hidden");
+  const log = document.getElementById("chat-log");
+  log.classList.remove("hidden");
+
+  // Clear and lock input
+  input.value = "";
+  _autoResize();
+  _setSending(true);
+
+  // Append user bubble immediately
+  appendUserBubble(question);
+
+  try {
+    const result = await submitQuery(_activeConvId, question);
+
+    appendPendingBubble(_activeConvId, result.query_id, (completed) => {
+      _setSending(false);
+      _refreshUsage();
+      if (completed.status === "complete") {
+        // Refresh sidebar to pick up auto-generated title on first query
+        refreshSidebar().then(() => setActiveConversation(_activeConvId));
+      }
+    });
+  } catch (err) {
+    _setSending(false);
+
+    if (err.status === 429) {
+      await showAlert(
+        "Token limit reached",
+        "You have used your full token budget. Email mamonaco1973@gmail.com to request a reset."
+      );
     } else {
-    errors.resume = "Please add a resume with Manage Resumes.";
+      errorEl.textContent = "Failed to send. Please try again.";
+      errorEl.classList.remove("hidden");
     }
   }
+}
 
-  if (sourceType === "url") {
-  if (!jobUrl) {
-    errors.jobUrl = "Job URL is required.";
-  } else if (!isValidUrl(jobUrl)) {
-    errors.jobUrl = "URL is invalid. Enter a valid http or https URL.";
-  }
-  }
+/* ---------------------------------------------------------------------------- */
+/* Conversation deleted callback                                                 */
+/* ---------------------------------------------------------------------------- */
 
-  if (sourceType === "raw_text") {
-    if (!jobDescription) {
-      errors.jobDescription = "Job description is required.";
-    } else if (jobDescription.length < 100) {
-      errors.jobDescription = "Job description is too short.";
+function _onConversationDeleted(convId) {
+  if (convId === _activeConvId) {
+    _activeConvId = null;
+    document.getElementById("chat-log").innerHTML = "";
+    document.getElementById("chat-log").classList.add("hidden");
+    document.getElementById("empty-state").classList.remove("hidden");
+  }
+}
+
+/* ---------------------------------------------------------------------------- */
+/* Token usage ring                                                              */
+/* ---------------------------------------------------------------------------- */
+
+async function _refreshUsage() {
+  try {
+    const usage  = await getUsage();
+    const used   = usage.tokens_used  || 0;
+    const limit  = usage.token_limit  || 500000;
+    const pct    = Math.min(100, Math.round((used / limit) * 100));
+
+    const arc    = document.getElementById("token-ring-arc");
+    const label  = document.getElementById("token-usage-label");
+    const widget = document.getElementById("token-usage-widget");
+
+    arc.setAttribute("stroke-dasharray", `${pct} ${100 - pct}`);
+
+    if (pct >= 90) {
+      arc.style.stroke = "var(--ring-danger)";
+    } else if (pct >= 70) {
+      arc.style.stroke = "var(--ring-warn)";
+    } else {
+      arc.style.stroke = "var(--ring-color)";
     }
-  }
 
- if (sourceType === "linkedin_job_id") {
-  const jobIds = parseLinkedInJobIds(linkedinRaw);
+    const usedK  = Math.round(used  / 1000);
+    const limitK = Math.round(limit / 1000);
+    label.textContent = `${usedK}K / ${limitK}K tokens`;
 
-  if (jobIds.length === 0) {
-    errors.linkedinJobIds = "Enter at least one LinkedIn job ID.";
-  } else if (!jobIds.every(isValidLinkedInJobId)) {
-    errors.linkedinJobIds =
-      "Each LinkedIn Job ID must be numeric and 7 to 12 digits long.";
+    widget.classList.remove("hidden");
+  } catch (err) {
+    console.warn("Failed to fetch usage", err);
   }
 }
 
-  return {
-    isValid: Object.keys(errors).length === 0,
-    errors
-  };
+/* ---------------------------------------------------------------------------- */
+/* Helpers                                                                       */
+/* ---------------------------------------------------------------------------- */
+
+function _setSending(active) {
+  _sending = active;
+  document.getElementById("btn-send").disabled       = active;
+  document.getElementById("chat-input").disabled     = active;
 }
 
-/* -------------------------------------------------------------------------- */
-/* Function: parseLinkedInJobIds                                               */
-/* Purpose: Split newline-separated input into a trimmed array of job ID      */
-/*          strings, discarding blank lines.                                  */
-/* -------------------------------------------------------------------------- */
-function parseLinkedInJobIds(value) {
-  return value
-    .split(/\n+/)
-    .map((item) => item.trim())
-    .filter(Boolean);
+function _autoResize() {
+  const ta = document.getElementById("chat-input");
+  ta.style.height = "auto";
+  ta.style.height = `${Math.min(ta.scrollHeight, 200)}px`;
 }
 
-/* -------------------------------------------------------------------------- */
-/* Function: isValidLinkedInJobId                                              */
-/* Purpose: Validate that a LinkedIn job ID is purely numeric and 7–12 digits.*/
-/* -------------------------------------------------------------------------- */
-function isValidLinkedInJobId(value) {
-  return /^\d{7,12}$/.test(value);
-}
+/* ---------------------------------------------------------------------------- */
+/* Entry point                                                                   */
+/* ---------------------------------------------------------------------------- */
 
-
-/* -------------------------------------------------------------------------- */
-/* Function: renderNewJobFormErrors                                            */
-/* Purpose: Map the errors object from validateNewJobForm to the corresponding*/
-/*          inline error elements in the DOM.                                 */
-/* -------------------------------------------------------------------------- */
-function renderNewJobFormErrors(errors) {
-  setFieldError("resume-error", errors.resume);
-  setFieldError("job-url-error", errors.jobUrl);
-  setFieldError("job-description-error", errors.jobDescription);
-  setFieldError("linkedin-job-ids-error", errors.linkedinJobIds);
-}
-
-function clearNewJobFormErrors() {
-  renderNewJobFormErrors({});
-}
-
-/* -------------------------------------------------------------------------- */
-/* Function: setFieldError                                                     */
-/* Purpose: Show or hide an inline error element. When message is truthy the  */
-/*          element is revealed; when falsy it is cleared and hidden.         */
-/* -------------------------------------------------------------------------- */
-function setFieldError(elementId, message) {
-  const element = document.getElementById(elementId);
-
-  if (!element) {
-    return;
-  }
-
-  if (message) {
-    element.textContent = message;
-    element.classList.remove("hidden");
-  } else {
-    element.textContent = "";
-    element.classList.add("hidden");
-  }
-}
-
-/* -------------------------------------------------------------------------- */
-/* Function: updateNewJobFormValidation                                        */
-/* Purpose: Run live validation on every input change and enable or disable   */
-/*          the submit button based on the result.                            */
-/* -------------------------------------------------------------------------- */
-function updateNewJobFormValidation() {
-  const validation = validateNewJobForm();
-
-  renderNewJobFormErrors(validation.errors);
-
-  const submitButton = document.getElementById("submit-new-job");
-
-  if (submitButton) {
-    submitButton.disabled = !validation.isValid;
-  }
-}
-
-/* -------------------------------------------------------------------------- */
-/* Function: isValidUrl                                                        */
-/* Purpose: Return true only if the value is a well-formed http or https URL. */
-/* -------------------------------------------------------------------------- */
-function isValidUrl(value) {
-  try {
-    const url = new URL(value);
-    return url.protocol === "http:" || url.protocol === "https:";
-  } catch {
-    return false;
-  }
-}
-
-/* -------------------------------------------------------------------------- */
-/* Function: scheduleAutoRefresh                                               */
-/* Purpose: If any job is still pending (submitted/Scoring), schedule a       */
-/*          15-second refresh. Clears any existing timer first so manual      */
-/*          refreshes reset the countdown rather than stacking timers.        */
-/*          Stops automatically once all jobs reach a terminal status.        */
-/* -------------------------------------------------------------------------- */
-function scheduleAutoRefresh() {
-  if (autoRefreshTimer !== null) {
-    clearTimeout(autoRefreshTimer);
-    autoRefreshTimer = null;
-  }
-  if (countdownInterval !== null) {
-    clearInterval(countdownInterval);
-    countdownInterval = null;
-  }
-
-  const indicator = document.getElementById("auto-refresh-indicator");
-  const text = document.getElementById("auto-refresh-text");
-  const spinner = indicator?.querySelector(".spinner");
-
-  if (hasPendingJobs()) {
-    spinner?.classList.remove("hidden");
-    indicator?.classList.remove("hidden");
-
-    let remaining = AUTO_REFRESH_SECONDS;
-    if (text) text.textContent = `Auto-refreshing in ${remaining}s...`;
-
-    countdownInterval = setInterval(() => {
-      remaining -= 1;
-      if (text) text.textContent = `Auto-refreshing in ${remaining}s...`;
-    }, 1000);
-
-    autoRefreshTimer = setTimeout(() => {
-      clearInterval(countdownInterval);
-      countdownInterval = null;
-      autoRefreshTimer = null;
-      refreshApp();
-    }, AUTO_REFRESH_SECONDS * 1000);
-  } else {
-    indicator?.classList.add("hidden");
-  }
-}
-
-/* -------------------------------------------------------------------------- */
-/* Function: refreshApp                                                        */
-/* Purpose: Reload the job list from the API and re-render the table.         */
-/*          Disables the refresh button while in-flight, then schedules an    */
-/*          auto-refresh if any jobs are still pending.                       */
-/* -------------------------------------------------------------------------- */
-async function refreshApp() {
-  // Stop any running countdown before fetching.
-  if (countdownInterval !== null) {
-    clearInterval(countdownInterval);
-    countdownInterval = null;
-  }
-
-  const refreshButton = document.getElementById("btn-refresh");
-  const table = document.getElementById("jobs-table");
-
-  try {
-    if (refreshButton) refreshButton.disabled = true;
-    table?.classList.add("loading");
-
-    await loadJobs();
-    await updateTokenUsage();
-  } catch (error) {
-    console.error("Failed to refresh dashboard:", error);
-    await showAlert(`Failed to refresh jobs: ${error.message}`, { title: "Error" });
-  } finally {
-    if (refreshButton) refreshButton.disabled = false;
-    table?.classList.remove("loading");
-    scheduleAutoRefresh();
-  }
-}
-
-/* -------------------------------------------------------------------------- */
-/* Function: submitJobScoringRequest                                           */
-/* Purpose: Read the selected source type and dispatch the appropriate        */
-/*          createJob call. LinkedIn job IDs are expanded into individual     */
-/*          URL-based job submissions.                                        */
-/* -------------------------------------------------------------------------- */
-async function submitJobScoringRequest() {
-  const resumeId  = document.getElementById("resume-select")?.value.trim() || "";
-  const sourceType = document.getElementById("source-type")?.value || "url";
-  const folderId   = document.getElementById("new-job-folder-select")?.value || null;
-  const base       = { resume_id: resumeId, ...(folderId ? { folder_id: folderId } : {}) };
-
-  if (sourceType === "url") {
-    await createJob({
-      ...base,
-      source_type: "url",
-      job_url: document.getElementById("job-url")?.value.trim() || "",
-    });
-    return;
-  }
-
-  if (sourceType === "raw_text") {
-    await createJob({
-      ...base,
-      source_type: "raw_text",
-      job_description: document.getElementById("job-description")?.value.trim() || "",
-    });
-    return;
-  }
-
-  if (sourceType === "linkedin_job_id") {
-    const ids = (document.getElementById("linkedin-job-ids")?.value.trim() || "")
-      .split("\n").map((id) => id.trim()).filter(Boolean);
-    for (const id of ids) {
-      await createJob({
-        ...base,
-        source_type: "url",
-        job_url: `https://www.linkedin.com/jobs/view/${id}`,
-      });
-    }
-    return;
-  }
-}
-
-/* -------------------------------------------------------------------------- */
-/* Function: updateAuthButtons                                                 */
-/* Purpose: Toggle sign-in/sign-out visibility and enable or disable action   */
-/*          buttons based on whether the user is currently authenticated.     */
-/* -------------------------------------------------------------------------- */
-function updateAuthButtons() {
-  const signIn = document.getElementById("btn-sign-in");
-  const signOut = document.getElementById("btn-sign-out");
-
-  const refresh = document.getElementById("btn-refresh");
-  const scoreJob = document.getElementById("btn-new-job");
-  const manageResumes = document.getElementById("btn-manage-resumes");
-
-  const loggedIn = isLoggedIn();
-
-  if (loggedIn) {
-    signIn?.classList.add("hidden");
-    signOut?.classList.remove("hidden");
-    document.getElementById("filter-bar")?.classList.remove("hidden");
-
-    refresh?.removeAttribute("disabled");
-    scoreJob?.removeAttribute("disabled");
-    manageResumes?.removeAttribute("disabled");
-  } else {
-    signIn?.classList.remove("hidden");
-    signOut?.classList.add("hidden");
-    document.getElementById("filter-bar")?.classList.add("hidden");
-    // Reset token usage so it re-enters hidden state for the next login
-    document.getElementById("token-usage")?.classList.add("hidden");
-
-    refresh?.setAttribute("disabled", "true");
-    scoreJob?.setAttribute("disabled", "true");
-    manageResumes?.setAttribute("disabled", "true");
-  }
-}
-
-/* ================================================================================
-/* Folders
-/* ================================================================================ */
-
-/* -------------------------------------------------------------------------- */
-/* Function: loadFolders                                                       */
-/* Purpose: Fetch the folder list and repopulate the folder dropdown,         */
-/*          preserving the current selection when it still exists.            */
-/* -------------------------------------------------------------------------- */
-async function loadFolders() {
-  try {
-    folders = await listFolders();
-  } catch (_) {
-    folders = [];
-  }
-
-  const select = document.getElementById("folder-select");
-  if (!select) return;
-
-  select.innerHTML = `<option value="">All Jobs</option>`;
-  folders.forEach((f) => {
-    const opt = document.createElement("option");
-    opt.value       = f.folder_id;
-    opt.textContent = f.name;
-    select.appendChild(opt);
-  });
-
-  const stillValid = folders.some((f) => f.folder_id === currentFolderId);
-  if (!stillValid) { currentFolderId = ""; setCookie("jobFilter_folder", ""); }
-  select.value = currentFolderId;
-  setFolderFilter(currentFolderId);
-  updateDeleteFolderButton();
-}
-
-function updateDeleteFolderButton() {
-  const btn = document.getElementById("btn-delete-folder");
-  if (!btn) return;
-  if (currentFolderId) btn.classList.remove("hidden");
-  else                 btn.classList.add("hidden");
-}
-
-function populateJobFolderSelect() {
-  const select = document.getElementById("new-job-folder-select");
-  if (!select) return;
-  select.innerHTML = `<option value="">No Folder</option>`;
-  folders.forEach((f) => {
-    const opt = document.createElement("option");
-    opt.value       = f.folder_id;
-    opt.textContent = f.name;
-    select.appendChild(opt);
-  });
-  select.value = currentFolderId || "";
-}
-
-/* -------------------------------------------------------------------------- */
-/* Function: restoreFilterState                                                */
-/* Purpose: Read saved filter cookies and apply them to the filter bar and    */
-/*          in-memory state before the first data load.                       */
-/* -------------------------------------------------------------------------- */
-function restoreFilterState() {
-  const savedFolder = getCookie("jobFilter_folder");
-  const savedStatus = getCookie("jobFilter_status");
-  const savedSearch  = getCookie("jobFilter_search");
-
-  if (savedFolder) currentFolderId = savedFolder;
-
-  const statusEl = document.getElementById("filter-status");
-  const searchEl = document.getElementById("filter-search");
-  if (savedStatus && statusEl) { statusEl.value = savedStatus; setStatusFilter(savedStatus); }
-  if (savedSearch  && searchEl) { searchEl.value = savedSearch;  setSearchFilter(savedSearch); }
-}
-
-/* ================================================================================
-/* Cookie Helpers
-/* ================================================================================ */
-
-function setCookie(name, value) {
-  const expires = new Date(Date.now() + 30 * 864e5).toUTCString();
-  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
-}
-
-function getCookie(name) {
-  return document.cookie.split("; ").reduce((found, part) => {
-    const [k, v] = part.split("=");
-    return k === name ? decodeURIComponent(v || "") : found;
-  }, "");
-}
-
-/* -------------------------------------------------------------------------- */
-/* Function: updateTokenUsage                                                  */
-/* Purpose: Fetch the user's current token usage and update the SVG ring     */
-/*          indicator in the filter bar. Swallows errors so it never blocks  */
-/*          the dashboard from loading.                                       */
-/* -------------------------------------------------------------------------- */
-async function updateTokenUsage() {
-  try {
-    const data      = await getUsage();
-    const used      = data?.tokens_used ?? 0;
-    const limit     = data?.token_limit ?? 100000;
-    const remaining = Math.max(0, limit - used);
-    const usedPct   = limit > 0 ? Math.min((used / limit) * 100, 100) : 0;
-    const leftPct   = 100 - usedPct;
-
-    const arc     = document.getElementById("token-ring-arc");
-    const label   = document.getElementById("token-usage-label");
-    const display = document.getElementById("token-usage");
-    if (!arc || !label) return;
-
-    // Arc represents remaining tokens — starts full and depletes
-    arc.setAttribute("stroke-dasharray", `${leftPct.toFixed(1)} ${usedPct.toFixed(1)}`);
-    arc.classList.toggle("token-near-limit", usedPct >= 80);
-
-    const fmt = (n) => n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n);
-    label.textContent = `${fmt(remaining)} / ${fmt(limit)}`;
-    label.title       = `${used.toLocaleString()} of ${limit.toLocaleString()} tokens used (${usedPct.toFixed(1)}%)`;
-
-    // Reveal only after data is populated — avoids showing an empty ring on load
-    display?.classList.remove("hidden");
-  } catch (_) {
-    // Token display is non-critical — fail silently
-  }
-}
-
-/* -------------------------------------------------------------------------- */
-/* Function: showNotLoggedInMessage                                            */
-/* Purpose: Hide the jobs table and replace the empty state with a sign-in   */
-/*          prompt for unauthenticated visitors.                              */
-/* -------------------------------------------------------------------------- */
-function showNotLoggedInMessage() {
-  const table = document.getElementById("jobs-table");
-  const emptyState = document.getElementById("empty-state");
-
-  table?.classList.add("hidden");
-
-  if (emptyState) {
-    emptyState.classList.remove("hidden");
-    emptyState.innerHTML = `<p>Please sign in to use the application.</p>`;
-  }
-
-  // Auto-open the sign-in modal for unauthenticated visitors
-  document.getElementById("sign-in-modal")?.classList.remove("hidden");
-}
+boot();

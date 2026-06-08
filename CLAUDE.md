@@ -5,234 +5,95 @@ with code in this repository.
 
 ## What This App Does
 
-AWS-based Resume Scoring Application ("My Jobs"). Users upload resumes
-and submit job postings (URL, raw text, or LinkedIn job IDs); the app
-uses AWS Bedrock (Claude Haiku) to score resume-to-job compatibility
-(0--100) asynchronously. Scored jobs support file attachments stored in
-S3 and managed through the job detail modal. Token usage (Bedrock
-inference tokens) is tracked per user in DynamoDB with a configurable
-lifetime cap enforced at submission time.
-
-## Deployment Commands
-
-All deployment runs from the repo root:
-
-``` bash
-./apply.sh      # Full deploy: installs Python deps, runs Terraform, uploads frontend to S3
-./destroy.sh    # Tear down entire stack
-./check_env.sh  # Validate required tools: aws, terraform, jq
-./validate.sh   # Post-deploy validation (partially implemented)
-```
-
-Python dependencies are installed into the Lambda source directory
-directly:
-
-``` bash
-cd 01-core/code && pip install -r requirements.txt -t .
-```
-
-There are no test or lint commands configured.
+AWS RAG demo — a ChatGPT-style chat interface that lets users ask natural
+language questions about Mike Monaco's multi-cloud reference architecture
+portfolio. Answers are grounded in GitHub READMEs, Terraform files, and
+YouTube video content indexed into a vector corpus. Conversations are
+stateful (last 5 Q&A pairs injected as history per query). Token usage is
+tracked per user in DynamoDB with a 500K lifetime cap.
 
 ## Architecture
 
-    01-core/           # Backend: Terraform IaC + Python Lambda source
-      code/            # Lambda functions (Python)
-      *.tf             # Terraform files
-    02-webapp/         # Frontend: vanilla JS SPA, deployed to S3
-      js/config.js.tmpl  # Config template populated by apply.sh at deploy time
+    01-core/           # Backend: Terraform + Python Lambda source
+      code/            # Lambda source files
+    02-webapp/         # Frontend: vanilla JS SPA deployed to S3
+    ingest/            # Local-only scripts — crawl GitHub + YouTube, build corpus
 
-### Request Flow
+### Request flow
 
-**Resume upload:** POST /resumes → API Lambda → S3 (text) + DynamoDB
-(metadata)
+1. User types a question → POST /conversations/{conv_id}/queries → API Lambda
+2. API Lambda writes question.txt to S3, creates QUERY# record (status=pending),
+   enqueues SQS message
+3. Worker Lambda (SQS trigger):
+   - Loads corpus/embeddings.npy + corpus/chunks.json from S3
+   - Embeds query via Bedrock Titan Embeddings v2
+   - Cosine similarity → top-5 chunks
+   - Fetches last 5 completed Q&A pairs from DynamoDB/S3 as history
+   - Calls Bedrock Haiku with system prompt + history + context + question
+   - Writes answer.txt + sources.json to S3
+   - Updates QUERY# record (status=complete) and USER#USAGE tokens
+4. Frontend polls GET /conversations/{conv_id}/queries/{query_id} every 2s
+5. On completion, renders answer with collapsible sources section
 
-**Job scoring:**
+### Lambda files
 
-1.  POST /jobs → API Lambda → copies resume snapshot to S3, sends SQS
-    message → returns job with `submitted` status
-2.  Worker Lambda (SQS trigger) → fetches URL if needed → Bedrock for
-    field extraction → Bedrock for score → saves analysis to S3 →
-    updates DynamoDB with score and `Scored` status
-3.  Frontend polls GET /jobs periodically to show updated scores
+- `handler.py`       — API router
+- `conversations.py` — conversation + query CRUD; token budget enforcement
+- `users.py`         — registration (USER_CAP=100) + GET /usage
+- `worker.py`        — RAG pipeline (embed → retrieve → history → Haiku → store)
 
-### Lambda Functions
+### Data model (DynamoDB single-table)
 
--   **`code/handler.py`** --- API Lambda entry point; routes all
-    requests by method + path
--   **`code/worker.py`** --- Worker Lambda; SQS-triggered scoring
-    pipeline using Bedrock; accumulates token counts in DynamoDB
--   **`code/jobs.py`** --- Job CRUD logic including folder assignment
--   **`code/resumes.py`** --- Resume CRUD logic
--   **`code/attachments.py`** --- Attachment CRUD; base64 JSON transfer,
-    5-file cap, 10 MB per-file limit
--   **`code/folders.py`** --- Folder CRUD; jobs remain on folder delete
--   **`code/users.py`** --- User registration (idempotent, USER_CAP
-    enforced) and GET /usage token tracking
+- `pk=USER#<id>`, `sk=USER#USAGE`          — tokens_used, token_limit (500K)
+- `pk=USER#<id>`, `sk=CONV#<id>`           — title, created_at, updated_at
+- `pk=USER#<id>`, `sk=QUERY#<conv>#<id>`   — status, S3 key pointers, tokens_used
 
-### Data Model (DynamoDB single-table)
+### S3 layout
 
--   `pk=USER#<user_id>`, `sk=RESUME#<id>` — resume metadata
--   `pk=USER#<user_id>`, `sk=JOB#<id>` — job metadata + attachments
-    array
--   `pk=USER#<user_id>`, `sk=FOLDER#<id>` — folder name + metadata
--   `pk=USER#<user_id>`, `sk=USER#USAGE` — tokens_used, token_limit
+    corpus/chunks.json                                — chunk metadata array
+    corpus/embeddings.npy                             — float32 (n_chunks, 1536)
+    users/USER#<id>/conversations/CONV#<c>/QUERY#<q>/question.txt
+    users/USER#<id>/conversations/CONV#<c>/QUERY#<q>/answer.txt
+    users/USER#<id>/conversations/CONV#<c>/QUERY#<q>/sources.json
 
-Job documents carry an `attachments` List attribute — each element is
-a dict with `attachment_id`, `filename`, `content_type`, `size`, and
-`uploaded_at`. Delete uses read-modify-write (not `list_remove`) to
-avoid equality fragility.
+### Key Terraform variables (01-core/variables.tf)
 
-### S3 Layout (backend bucket)
-
-    users/USER#{id}/resumes/RESUME#{id}.txt
-    users/USER#{id}/jobs/JOB#{id}/job_description.txt
-    users/USER#{id}/jobs/JOB#{id}/resume_snapshot.txt
-    users/USER#{id}/jobs/JOB#{id}/job_analysis.txt
-    users/USER#{id}/jobs/JOB#{id}/notes.txt
-    users/USER#{id}/jobs/JOB#{id}/attachments/{att_id}/{filename}
-
-Attachments are transferred as base64 JSON (10 MB hard limit per file)
-— no signed URLs or multipart; avoids IAM and API Gateway content-type
-complications.
-
-### Key Terraform Variables (`01-core/variables.tf`)
-
--   `region` --- default `us-east-1`
--   `bedrock_model_id` --- default
-    `us.anthropic.claude-haiku-4-5-20251001-v1:0`
--   `frontend_bucket_base_name` / `backend_bucket_base_name`
+- `region`           — default us-east-1
+- `bedrock_model_id` — default us.anthropic.claude-haiku-4-5-20251001-v1:0
 
 ### Authentication
 
-Cognito User Pool with hosted UI, OAuth2 authorization code flow. All
-API routes require JWT Bearer token. Tokens stored in `localStorage` on
-the frontend. The SPA shows a custom sign-in modal first; clicking "Sign
-In" redirects to the Cognito Hosted UI. POST /register is called on
-first load after auth to create the user usage record (idempotent).
+Cognito User Pool with Hosted UI, OAuth2 authorization code flow. All API
+routes require JWT Bearer token.
 
-### Frontend Config
+## Deployment
 
-`02-webapp/js/config.js.tmpl` is a template --- `apply.sh` substitutes
-`API_BASE_URL`, `COGNITO_DOMAIN`, and `COGNITO_CLIENT_ID` at deploy time
-to produce `config.js`. Never edit `config.js` directly.
+```bash
+./apply.sh      # full deploy
+./destroy.sh    # tear down
+./check_env.sh  # validate tools and credentials
+```
+
+Python deps install into the Lambda source dir so Terraform can zip them:
+
+```bash
+cd 01-core/code && pip install -r requirements.txt -t .
+```
+
+## Corpus ingestion (run locally before or after deploy)
+
+```bash
+cd ingest
+pip install -r requirements.txt
+python ingest.py --bucket <backend-bucket-name>
+```
+
+The ingest script crawls all public `mamonaco1973/*` GitHub repos and the
+YouTube channel, chunks the content, embeds via Bedrock Titan, and writes
+`corpus/chunks.json` and `corpus/embeddings.npy` to the backend S3 bucket.
 
 ## Code Commenting Standards
 
-Claude should apply consistent, professional commenting when modifying
-code.
-
-### General Rules
-
--   Keep comment lines **≤ 80 characters**
--   Do **not change code behavior**
--   Preserve existing variable names and structure
--   Comments should explain **intent**, not restate obvious code
--   Prefer concise, structured comments
-
-### Python Files
-
-Modules should begin with a structured header:
-
-```python
-# ================================================================================
-# Module Name
-#
-# Purpose
-# Brief explanation of what this module does.
-#
-# Key Responsibilities
-# - Responsibility 1
-# - Responsibility 2
-# ================================================================================
-```
-
-Functions should include a short structured description:
-
-```python
-# --------------------------------------------------------------------------------
-# Function: function_name
-#
-# Purpose
-# Explain what the function does.
-#
-# Arguments
-# - arg_name : description
-#
-# Returns
-# - description
-# --------------------------------------------------------------------------------
-```
-
-### Terraform Files
-
-Use section banners to describe infrastructure blocks:
-
-```hcl
-# ================================================================================
-# Section Name
-# Description of resources created in this block
-# ================================================================================
-```
-
-Comments should explain **why infrastructure exists**, not repeat the
-resource definition.
-
-### JavaScript Files
-
-- Keep comment lines <= 80 characters
-- Do not change UI behavior unless explicitly asked
-- Preserve existing function names, IDs, and DOM structure
-- Prefer concise section banners for major areas
-- Use comments to explain intent, data flow, and UI behavior
-- Do not add noisy comments for obvious one-line DOM operations
-- Keep comments professional and compact
-- Prefer small, reviewable diffs
-
-Use section banners like:
-
-```javascript
-/* ================================================================================ */
-/* Section Name */
-/* Purpose of this section */
-/* ================================================================================ */
-```
-
-For functions, use short block comments when helpful:
-
-```javascript
-/* -------------------------------------------------------------------------------- */
-/* Function: functionName                                                            */
-/* Purpose: Explain what this function does                                         */
-/* -------------------------------------------------------------------------------- */
-```
-
-### Shell Scripts
-
-- Keep comment lines <= 80 characters
-- Preserve strict bash style: set -euo pipefail
-- Use your quick start comment style
-- Prefer bannered sections for each major operation
-- Explain why a command block exists, not what obvious flags do
-- Keep comments concise and operational
-- Do not rewrite working command structure unless explicitly asked
-- Preserve variable names unless a rename is necessary
-- Prefer readable step-by-step execution flow
-- Keep scripts idempotent where possible
-
-Scripts should use section banners like:
-
-```bash
-# ================================================================================
-# Section Name
-# Purpose of this block
-# ================================================================================
-```
-
-For smaller subsections:
-
-```bash
-# --------------------------------------------------------------------------------
-# Subsection Name
-# Brief operational note
-# --------------------------------------------------------------------------------
-```
+See the project-level CLAUDE.md in the workspace root for full standards.
+Short version: comment the *why*, not the *what*. Section headers for
+logical blocks, inline comments only for non-obvious intent.

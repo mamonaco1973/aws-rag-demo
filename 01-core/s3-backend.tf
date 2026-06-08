@@ -1,6 +1,6 @@
 # =================================================================================
 # Backend S3 bucket
-# Stores application data (resumes, job payloads, analysis results)
+# Stores user conversations, query Q&A, and the RAG corpus embeddings
 # Bucket name = <base>-<random>
 # =================================================================================
 

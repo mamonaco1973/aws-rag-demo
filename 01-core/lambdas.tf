@@ -1,10 +1,10 @@
 # ================================================================================
-# Lambda function
+# API Lambda function
+# Handles all synchronous API Gateway requests
 # ================================================================================
 
 resource "aws_lambda_function" "api" {
-
-  function_name = "resume-api-${random_id.bucket_suffix.hex}"
+  function_name = "rag-api-${random_id.bucket_suffix.hex}"
 
   filename         = data.archive_file.lambdas_zip.output_path
   source_code_hash = data.archive_file.lambdas_zip.output_base64sha256
@@ -12,38 +12,34 @@ resource "aws_lambda_function" "api" {
   handler = "handler.lambda_handler"
   runtime = "python3.11"
 
-  role = aws_iam_role.lambda_exec.arn
-
+  role    = aws_iam_role.lambda_exec.arn
   timeout = 10
 
   environment {
     variables = {
       TABLE_NAME          = aws_dynamodb_table.app_table.name
       BACKEND_BUCKET_NAME = aws_s3_bucket.backend.bucket
-      JOB_QUEUE_URL       = aws_sqs_queue.job_requests.id
+      QUERY_QUEUE_URL     = aws_sqs_queue.query_requests.id
     }
   }
 }
 
 # ================================================================================
-# CloudWatch log group
+# CloudWatch log group for API Lambda
 # ================================================================================
 
-resource "aws_cloudwatch_log_group" "lambda_logs" {
-
-  name = "/aws/lambda/${aws_lambda_function.api.function_name}"
-
+resource "aws_cloudwatch_log_group" "api_logs" {
+  name              = "/aws/lambda/${aws_lambda_function.api.function_name}"
   retention_in_days = 7
 }
 
 # ================================================================================
 # Worker Lambda function
-# Processes SQS job requests
+# SQS-triggered RAG pipeline — embed, retrieve, call Haiku, store result
 # ================================================================================
 
 resource "aws_lambda_function" "worker" {
-
-  function_name = "resume-worker-${random_id.bucket_suffix.hex}"
+  function_name = "rag-worker-${random_id.bucket_suffix.hex}"
 
   filename         = data.archive_file.lambdas_zip.output_path
   source_code_hash = data.archive_file.lambdas_zip.output_base64sha256
@@ -51,8 +47,7 @@ resource "aws_lambda_function" "worker" {
   handler = "worker.lambda_handler"
   runtime = "python3.11"
 
-  role = aws_iam_role.lambda_exec.arn
-
+  role        = aws_iam_role.lambda_exec.arn
   timeout     = 300
   memory_size = 512
 
@@ -60,8 +55,17 @@ resource "aws_lambda_function" "worker" {
     variables = {
       TABLE_NAME          = aws_dynamodb_table.app_table.name
       BACKEND_BUCKET_NAME = aws_s3_bucket.backend.bucket
-      JOB_QUEUE_URL       = aws_sqs_queue.job_requests.id
+      QUERY_QUEUE_URL     = aws_sqs_queue.query_requests.id
       BEDROCK_MODEL_ID    = var.bedrock_model_id
     }
   }
+}
+
+# ================================================================================
+# CloudWatch log group for worker Lambda
+# ================================================================================
+
+resource "aws_cloudwatch_log_group" "worker_logs" {
+  name              = "/aws/lambda/${aws_lambda_function.worker.function_name}"
+  retention_in_days = 7
 }

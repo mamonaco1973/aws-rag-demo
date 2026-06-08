@@ -1,109 +1,58 @@
-/* ========================================================================== */
-/* modal.js                                                                    */
-/* Promise-based styled modal replacements for window.alert / confirm /       */
-/* prompt. Each function returns a Promise that resolves when dismissed.      */
-/* ========================================================================== */
+/* ============================================================================ */
+/* modal.js                                                                     */
+/* Promise-based alert and confirm helpers for the two shared modals.          */
+/* ============================================================================ */
 
-function el(id) { return document.getElementById(id); }
+/* ---------------------------------------------------------------------------- */
+/* Alert — informational message with OK button                                 */
+/* ---------------------------------------------------------------------------- */
 
-/* -------------------------------------------------------------------------- */
-/* Function: showAlert                                                          */
-/* Purpose: Display a styled alert modal; resolves when the user clicks OK.  */
-/* -------------------------------------------------------------------------- */
-export function showAlert(message, { title = "Notice" } = {}) {
+export function showAlert(title, message) {
   return new Promise((resolve) => {
-    el("alert-modal-title").textContent   = title;
-    el("alert-modal-message").textContent = message;
-    el("alert-modal").classList.remove("hidden");
-    el("alert-modal-ok").focus();
+    document.getElementById("alert-modal-title").textContent   = title;
+    document.getElementById("alert-modal-message").textContent = message;
 
-    function close() {
-      el("alert-modal").classList.add("hidden");
-      document.removeEventListener("keydown", onKey);
+    const modal = document.getElementById("alert-modal");
+    const btn   = document.getElementById("alert-modal-ok");
+
+    modal.classList.remove("hidden");
+
+    function dismiss() {
+      modal.classList.add("hidden");
+      btn.removeEventListener("click", dismiss);
       resolve();
     }
 
-    function onKey(e) { if (e.key === "Escape" || e.key === "Enter") close(); }
-    document.addEventListener("keydown", onKey);
-    el("alert-modal-ok").onclick = close;
+    btn.addEventListener("click", dismiss);
   });
 }
 
-/* -------------------------------------------------------------------------- */
-/* Function: showConfirm                                                        */
-/* Purpose: Display a styled confirm modal; resolves true on confirm,         */
-/*          false on cancel or Escape.                                         */
-/* -------------------------------------------------------------------------- */
-export function showConfirm(message, {
-  title       = "Confirm",
-  confirmText = "Confirm",
-  danger      = false,
-} = {}) {
+/* ---------------------------------------------------------------------------- */
+/* Confirm — returns true if user clicks Confirm, false on Cancel              */
+/* ---------------------------------------------------------------------------- */
+
+export function showConfirm(title, message) {
   return new Promise((resolve) => {
-    el("confirm-modal-title").textContent   = title;
-    el("confirm-modal-message").textContent = message;
+    document.getElementById("confirm-modal-title").textContent   = title;
+    document.getElementById("confirm-modal-message").textContent = message;
 
-    const okBtn = el("confirm-modal-ok");
-    okBtn.textContent = confirmText;
-    okBtn.className   = danger ? "danger" : "";
+    const modal     = document.getElementById("confirm-modal");
+    const btnOk     = document.getElementById("confirm-modal-ok");
+    const btnCancel = document.getElementById("confirm-modal-cancel");
 
-    el("confirm-modal").classList.remove("hidden");
-    el("confirm-modal-cancel").focus();
+    modal.classList.remove("hidden");
 
-    function close(result) {
-      el("confirm-modal").classList.add("hidden");
-      document.removeEventListener("keydown", onKey);
+    function dismiss(result) {
+      modal.classList.add("hidden");
+      btnOk.removeEventListener("click", onOk);
+      btnCancel.removeEventListener("click", onCancel);
       resolve(result);
     }
 
-    function onKey(e) { if (e.key === "Escape") close(false); }
-    document.addEventListener("keydown", onKey);
-    okBtn.onclick                      = () => close(true);
-    el("confirm-modal-cancel").onclick = () => close(false);
-  });
-}
+    const onOk     = () => dismiss(true);
+    const onCancel = () => dismiss(false);
 
-/* -------------------------------------------------------------------------- */
-/* Function: showPrompt                                                         */
-/* Purpose: Display a styled prompt modal with a text input; resolves with    */
-/*          the trimmed string on OK, or null on cancel / Escape.             */
-/* -------------------------------------------------------------------------- */
-export function showPrompt(label, {
-  title       = "Enter Value",
-  placeholder = "",
-  confirmText = "OK",
-} = {}) {
-  return new Promise((resolve) => {
-    el("prompt-modal-title").textContent = title;
-    el("prompt-modal-label").textContent = label;
-
-    const input = el("prompt-modal-input");
-    const okBtn = el("prompt-modal-ok");
-    input.value       = "";
-    input.placeholder = placeholder;
-    okBtn.textContent = confirmText;
-    okBtn.disabled    = true;
-
-    el("prompt-modal").classList.remove("hidden");
-    input.focus();
-
-    // Enable OK only when input has content
-    input.oninput = () => { okBtn.disabled = !input.value.trim(); };
-
-    function close(value) {
-      el("prompt-modal").classList.add("hidden");
-      document.removeEventListener("keydown", onKey);
-      input.oninput = null;
-      resolve(value);
-    }
-
-    function onKey(e) {
-      if (e.key === "Escape") close(null);
-      if (e.key === "Enter" && input.value.trim()) close(input.value.trim());
-    }
-
-    document.addEventListener("keydown", onKey);
-    okBtn.onclick                      = () => close(input.value.trim());
-    el("prompt-modal-cancel").onclick  = () => close(null);
+    btnOk.addEventListener("click", onOk);
+    btnCancel.addEventListener("click", onCancel);
   });
 }
