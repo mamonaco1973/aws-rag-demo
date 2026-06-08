@@ -4,7 +4,7 @@
 /* Initializes auth, loads conversations, handles the chat input loop.        */
 /* ============================================================================ */
 
-import { isAuthenticated, getLoginUrl, clearTokens } from "./auth.js";
+import { isLoggedIn, getLoginUrl, clearTokens } from "./auth.js";
 import {
   registerUser, getUsage,
   createConversation, listQueries, submitQuery,
@@ -31,7 +31,7 @@ let _sending      = false;
 /* ---------------------------------------------------------------------------- */
 
 async function boot() {
-  if (!isAuthenticated()) {
+  if (!isLoggedIn()) {
     _showSignIn();
     return;
   }

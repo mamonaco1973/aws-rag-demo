@@ -55,8 +55,8 @@ EMBED_MODEL_ID  = "amazon.titan-embed-text-v2:0"
 CHUNK_SIZE      = 800    # target words per chunk
 CHUNK_OVERLAP   = 80     # words of overlap between consecutive chunks
 
-# Terraform files worth indexing per repo
-TF_FILES = {"main.tf", "variables.tf", "outputs.tf"}
+# Documentation files indexed per repo
+DOC_FILES = ["README.md", "CLAUDE.md"]
 
 # ================================================================================
 # GitHub helpers
@@ -101,15 +101,10 @@ def fetch_file(repo_name, path):
     return None
 
 
-def fetch_tf_files(repo_name):
-    """Return list of (path, content) for Terraform files found in the repo."""
+def fetch_doc_files(repo_name):
+    """Return list of (path, content) for README.md and CLAUDE.md."""
     results = []
-    # Try root and common subdirectory patterns
-    candidates = [f for f in TF_FILES] + \
-                 [f"01-core/{f}" for f in TF_FILES] + \
-                 [f"terraform/{f}" for f in TF_FILES]
-
-    for path in candidates:
+    for path in DOC_FILES:
         content = fetch_file(repo_name, path)
         if content:
             results.append((path, content))
@@ -279,27 +274,19 @@ def build_corpus(bucket, region):
         name     = repo["name"]
         html_url = repo["html_url"]
 
-        # README
-        readme = fetch_file(name, "README.md")
-        if readme:
+        # README.md and CLAUDE.md
+        before = len(chunks)
+        for doc_path, doc_content in fetch_doc_files(name):
             chunks.extend(chunk_text(
-                readme,
-                source_url=html_url,
+                doc_content,
+                source_url=f"{html_url}/blob/main/{doc_path}",
                 repo=name,
-                file_path="README.md",
+                file_path=doc_path,
                 title=repo.get("description") or name,
             ))
-            log.info("  %s/README.md → %d chunks", name, len(chunks))
-
-        # Terraform files
-        for tf_path, tf_content in fetch_tf_files(name):
-            chunks.extend(chunk_text(
-                tf_content,
-                source_url=f"{html_url}/blob/main/{tf_path}",
-                repo=name,
-                file_path=tf_path,
-                title=f"{name} — {tf_path}",
-            ))
+        added = len(chunks) - before
+        if added:
+            log.info("  %s → %d chunks", name, added)
 
         # Avoid hammering the GitHub API
         time.sleep(0.3)

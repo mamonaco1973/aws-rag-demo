@@ -88,9 +88,10 @@ pip install -r requirements.txt
 python ingest.py --bucket <backend-bucket-name>
 ```
 
-The ingest script crawls all public `mamonaco1973/*` GitHub repos and the
-YouTube channel, chunks the content, embeds via Bedrock Titan, and writes
-`corpus/chunks.json` and `corpus/embeddings.npy` to the backend S3 bucket.
+The ingest script crawls all public `mamonaco1973/*` GitHub repos (README.md
+and CLAUDE.md only) and optionally YouTube video descriptions, embeds via
+Bedrock Titan, and writes `corpus/chunks.json` and `corpus/embeddings.npy`
+to the backend S3 bucket.
 
 ## Code Commenting Standards
 
