@@ -239,7 +239,12 @@ async function _handleSend() {
   } catch (err) {
     _setSending(false);
 
-    if (err.status === 429) {
+    if (err.status === 503) {
+      await showAlert(
+        "Content not available",
+        "The portfolio knowledge base hasn't been loaded yet. Please check back soon."
+      );
+    } else if (err.status === 429) {
       await showAlert(
         "Token limit reached",
         "You have used your full token budget. Email mamonaco1973@gmail.com to request a reset."

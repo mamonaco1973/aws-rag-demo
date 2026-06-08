@@ -6,6 +6,7 @@
 import { getQuery } from "./api.js";
 
 const POLL_INTERVAL_MS = 2000;
+const POLL_MAX_ATTEMPTS = 60;   // 2 minutes before giving up
 
 /* ---------------------------------------------------------------------------- */
 /* Module state                                                                  */
@@ -201,7 +202,20 @@ function _buildSources(sources) {
 /* ---------------------------------------------------------------------------- */
 
 function _startPolling(convId, queryId, onComplete) {
+  let attempts = 0;
+
   const intervalId = setInterval(async () => {
+    attempts++;
+
+    // Give up after POLL_MAX_ATTEMPTS — worker likely crashed before updating status
+    if (attempts > POLL_MAX_ATTEMPTS) {
+      _stopPolling(queryId);
+      appendErrorMessage("Query timed out. Please try again.", queryId);
+      scrollToBottom();
+      if (onComplete) onComplete({ status: "failed" });
+      return;
+    }
+
     try {
       const q = await getQuery(convId, queryId);
 
@@ -217,7 +231,7 @@ function _startPolling(convId, queryId, onComplete) {
         if (onComplete) onComplete(q);
       }
     } catch (err) {
-      // Transient network error — keep polling
+      // Transient network error — keep polling until timeout
       console.warn("Poll error for query", queryId, err);
     }
   }, POLL_INTERVAL_MS);

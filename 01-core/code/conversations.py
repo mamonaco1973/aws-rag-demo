@@ -98,6 +98,15 @@ def _read_s3(key):
     return result["Body"].read().decode("utf-8")
 
 
+def _corpus_exists():
+    """Return True only if the corpus has been ingested into S3."""
+    try:
+        s3.head_object(Bucket=BACKEND_BUCKET, Key="corpus/chunks.json")
+        return True
+    except Exception:
+        return False
+
+
 def _check_token_budget(user_id):
     """Return (tokens_used, token_limit, over_budget)."""
     item = table.get_item(
@@ -219,6 +228,10 @@ def submit_query(event):
 
     if not question:
         return json_response(400, {"error": "question is required"})
+
+    # Reject immediately if the corpus has not been ingested yet
+    if not _corpus_exists():
+        return json_response(503, {"error": "corpus_not_ready"})
 
     # Enforce token budget before accepting the query
     used, limit, over = _check_token_budget(user_id)
