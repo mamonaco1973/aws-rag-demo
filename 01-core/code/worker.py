@@ -205,7 +205,7 @@ def _embed_query(question):
     """Embed a question string via Bedrock Titan Embeddings v2."""
     body = json.dumps({
         "inputText": question,
-        "dimensions": 1536,
+        "dimensions": 1024,
         "normalize": True,
     })
 
