@@ -1,9 +1,10 @@
-# AWS RAG Demo
+# Meet Mike — AI Interview Assistant
 
-A **ChatGPT-style chat application** that lets users ask natural language
-questions about Mike Monaco's multi-cloud reference architecture portfolio.
-Answers are grounded in content indexed from public GitHub repositories
-across AWS, GCP, Azure, and OCI projects.
+**Meet Mike** is a ChatGPT-style AI assistant trained on Mike Monaco's
+background, experience, cloud portfolio, and career history. Visitors and
+hiring managers can ask natural language questions about Mike's work,
+skills, and what he is looking for — and get answers grounded in real
+content.
 
 Built on **AWS Lambda**, **Amazon API Gateway**, **Amazon DynamoDB**,
 **Amazon SQS**, **Amazon Bedrock**, and **Amazon S3** — fully serverless,
@@ -11,11 +12,32 @@ no EC2 instances required.
 
 ![webapp](webapp.png)
 
+## What You Can Ask
+
+- "Tell me about yourself" / career overview
+- "Why are you looking for a new role?"
+- "What is your greatest technical accomplishment?"
+- "Tell me about Mike's pharma experience"
+- "How does Mike approach a cloud migration engagement?"
+- "What is Mike's leadership style?"
+- "Tell me about running RStudio in the cloud"
+- "Tell me about Active Directory in the cloud"
+- "How many YouTube subscribers does Mike have?"
+- "What is Mike looking for in his next role?"
+
 ## How It Works
 
-1. A one-time ingest script crawls all public GitHub repos (`README.md` and
-   `CLAUDE.md` per repo), chunks the text, embeds each chunk via **Bedrock
-   Titan Embeddings v2**, and stores the corpus in S3.
+1. A one-time ingest script loads content from three sources:
+   - **Local `.txt` files** in `03-ingest/` — Mike's resume, career history,
+     interview Q&A, pharma experience, SAS background, YouTube channel facts,
+     and contact info, each in focused single-topic files for precise retrieval
+   - **GitHub repos** — README.md and CLAUDE.md from all public
+     `mamonaco1973/*` repositories
+   - **YouTube** — video descriptions from Mike's Cloud Solutions channel
+
+   Each source is chunked, embedded via **Bedrock Titan Embeddings v2**,
+   and stored as a vector corpus in S3.
+
 2. Users log in via **Amazon Cognito** and ask questions in a
    ChatGPT-style interface.
 3. Each question is embedded, compared against the corpus using cosine

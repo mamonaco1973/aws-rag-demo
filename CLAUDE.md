@@ -5,12 +5,15 @@ with code in this repository.
 
 ## What This App Does
 
-AWS RAG demo — a ChatGPT-style chat interface that lets users ask natural
-language questions about Mike Monaco's multi-cloud reference architecture
-portfolio. Answers are grounded in GitHub READMEs, Terraform files, and
-YouTube video content indexed into a vector corpus. Conversations are
-stateful (last 5 Q&A pairs injected as history per query). Token usage is
-tracked per user in DynamoDB with a 500K lifetime cap.
+Meet Mike — a ChatGPT-style AI interview assistant trained on Mike Monaco's
+background, career history, cloud portfolio, and interview Q&A. Visitors
+and hiring managers can ask natural language questions about Mike's
+experience, skills, pharma work, SAS background, YouTube channel, and what
+he is looking for in his next role. Answers are grounded in a curated corpus
+of focused topic files, GitHub READMEs, and YouTube video descriptions
+indexed into a vector corpus. Conversations are stateful (last 5 Q&A pairs
+injected as history per query). Token usage is tracked per user in DynamoDB
+with a 500K lifetime cap.
 
 ## Architecture
 
@@ -90,10 +93,15 @@ pip install -r requirements.txt
 python ingest.py --bucket <backend-bucket-name>
 ```
 
-The ingest script crawls all public `mamonaco1973/*` GitHub repos (README.md
-and CLAUDE.md only) and optionally YouTube video descriptions, embeds via
-Bedrock Titan, and writes `corpus/chunks.json` and `corpus/embeddings.npy`
-to the backend S3 bucket.
+The ingest script loads content from three sources:
+- Local `.txt` files in `03-ingest/` — focused single-topic files covering
+  Mike's career, pharma experience, SAS background, YouTube channel, contact
+  info, and interview Q&A (one file per interview question for best retrieval)
+- All public `mamonaco1973/*` GitHub repos (README.md and CLAUDE.md only)
+- YouTube video descriptions from Mike's Cloud Solutions channel
+
+All content is embedded via Bedrock Titan and written as `corpus/chunks.json`
+and `corpus/embeddings.npy` to the backend S3 bucket.
 
 ## Code Commenting Standards
 
