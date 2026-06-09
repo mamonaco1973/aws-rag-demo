@@ -94,8 +94,8 @@ if aws s3api head-object --bucket "${BACKEND_BUCKET}" --key "corpus/chunks.json"
 else
   echo "NOTE: Corpus not found — running ingestion..."
   cd 03-ingest || { echo "ERROR: 03-ingest directory missing."; exit 1; }
-  pip install -r requirements.txt -q
-  python ingest.py --bucket "${BACKEND_BUCKET}" --region "${AWS_DEFAULT_REGION}"
+  pip3 install -r requirements.txt -q
+  python3 ingest.py --bucket "${BACKEND_BUCKET}" --region "${AWS_DEFAULT_REGION}"
   cd ..
 fi
 
