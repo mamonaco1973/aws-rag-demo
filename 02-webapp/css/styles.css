@@ -265,6 +265,7 @@ ul { list-style: none; }
   padding: 24px 0 12px;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 0;
 }
 
@@ -278,9 +279,8 @@ ul { list-style: none; }
   display: flex;
   padding: 6px 24px;
   gap: 12px;
-  max-width: 640px;
   width: 100%;
-  margin: 0 auto;
+  max-width: 640px;
 }
 
 .msg-row--user {
