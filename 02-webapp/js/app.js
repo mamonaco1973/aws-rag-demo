@@ -130,6 +130,7 @@ function _wireControls() {
 
 async function _startNewChat() {
   stopAllPolls();
+  _setSending(false);
 
   try {
     const conv = await createConversation();
@@ -158,6 +159,7 @@ async function _selectConversation(convId) {
   if (convId === _activeConvId) return;
 
   stopAllPolls();
+  _setSending(false);
   _activeConvId = convId;
   setActiveConversation(convId);
 
