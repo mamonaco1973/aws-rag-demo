@@ -37,3 +37,21 @@ variable "bedrock_model_id" {
   type        = string
   default     = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
 }
+
+# ================================================================================
+# Google OAuth — optional; set to enable Google sign-in via Cognito IdP
+# Populated from AWS_ASKMIKE_GOOGLE_CLIENT_ID / AWS_ASKMIKE_GOOGLE_CLIENT_SECRET
+# ================================================================================
+
+variable "google_client_id" {
+  description = "Google OAuth client ID for Cognito identity provider"
+  type        = string
+  default     = ""
+}
+
+variable "google_client_secret" {
+  description = "Google OAuth client secret for Cognito identity provider"
+  type        = string
+  default     = ""
+  sensitive   = true
+}

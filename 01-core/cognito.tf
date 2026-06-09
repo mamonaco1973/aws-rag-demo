@@ -3,7 +3,8 @@
 # ================================================================================
 
 locals {
-  spa_origin = "https://askmike.mikes-cloud-solutions.com"
+  spa_origin          = "https://askmike.mikes-cloud-solutions.com"
+  identity_providers  = var.google_client_id != "" ? ["COGNITO", "Google"] : ["COGNITO"]
 }
 
 # ================================================================================
@@ -67,10 +68,35 @@ resource "aws_cognito_user_pool_client" "rag_app" {
   allowed_oauth_flows                  = ["code"]
   allowed_oauth_scopes                 = ["openid", "email", "profile"]
 
-  supported_identity_providers = ["COGNITO"]
+  supported_identity_providers = local.identity_providers
 
   callback_urls = ["${local.spa_origin}/callback.html"]
   logout_urls   = ["${local.spa_origin}/index.html"]
+}
+
+# ================================================================================
+# Google identity provider — only created when credentials are supplied
+# ================================================================================
+
+resource "aws_cognito_identity_provider" "google" {
+  count = var.google_client_id != "" ? 1 : 0
+
+  user_pool_id  = aws_cognito_user_pool.rag_app.id
+  provider_name = "Google"
+  provider_type = "Google"
+
+  provider_details = {
+    client_id             = var.google_client_id
+    client_secret         = var.google_client_secret
+    authorize_scopes      = "email profile openid"
+    token_request_method  = "POST"
+    oidc_issuer           = "https://accounts.google.com"
+  }
+
+  attribute_mapping = {
+    email    = "email"
+    username = "sub"
+  }
 }
 
 # ================================================================================

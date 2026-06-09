@@ -64,7 +64,10 @@ pip3 install -r requirements.txt -t . -q
 cd ..
 
 terraform init
-terraform apply -auto-approve -var="bedrock_model_id=${BEDROCK_MODEL_ID}"
+terraform apply -auto-approve \
+  -var="bedrock_model_id=${BEDROCK_MODEL_ID}" \
+  -var="google_client_id=${AWS_ASKMIKE_GOOGLE_CLIENT_ID:-}" \
+  -var="google_client_secret=${AWS_ASKMIKE_GOOGLE_CLIENT_SECRET:-}"
 
 export API_BASE_URL=$(terraform output -raw api_endpoint)
 export BUCKET_NAME=$(terraform output -raw frontend_bucket_name)
