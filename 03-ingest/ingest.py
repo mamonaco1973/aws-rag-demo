@@ -88,17 +88,17 @@ def list_repos():
 
 
 def fetch_file(repo_name, path):
-    """Return decoded text content of a file, or None if it doesn't exist."""
-    url  = f"https://api.github.com/repos/{GITHUB_ORG}/{repo_name}/contents/{path}"
-    resp = requests.get(url, headers=_gh_headers())
+    """Return text content of a file, or None if it doesn't exist.
+
+    Uses raw.githubusercontent.com to avoid the 60 req/hr API rate limit
+    that applies to unauthenticated Contents API calls.
+    """
+    url  = f"https://raw.githubusercontent.com/{GITHUB_ORG}/{repo_name}/main/{path}"
+    resp = requests.get(url)
     if resp.status_code == 404:
         return None
     resp.raise_for_status()
-    data = resp.json()
-    if data.get("encoding") == "base64":
-        import base64
-        return base64.b64decode(data["content"]).decode("utf-8", errors="replace")
-    return None
+    return resp.text
 
 
 def fetch_doc_files(repo_name):
