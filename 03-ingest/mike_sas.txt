@@ -1,0 +1,70 @@
+Michael Monaco — SAS Institute Experience (18 Years)
+=====================================================
+
+Michael Monaco spent approximately 18 years at SAS Institute in Cary, NC, from
+2000 to 2018. SAS Institute is the world's largest privately held software company,
+known for its analytics and business intelligence platform. Mike held multiple
+engineering and leadership roles at SAS during his tenure.
+
+DIRECTOR — SAS Studio Web IDE (2013–2018)
+-----------------------------------------
+Mike led the development and launch of SAS Studio, the browser-based web IDE for
+SAS that replaced the legacy desktop SAS interface. SAS Studio is used by hundreds
+of thousands of SAS users globally and ships as part of the core SAS platform.
+
+He managed a team of 12–15 software engineers in an Agile environment. He designed
+and built the XML task framework for SAS Studio, which generates SAS and SQL code
+from a point-and-click interface — allowing non-programmers to use SAS without
+writing code. He integrated SAS Studio with SAS Enterprise Guide. He designed
+RESTful SAS microservices using Java, Spring, and Spring Boot. He authored papers
+and delivered presentations at SAS Global Forum, the flagship annual SAS conference.
+
+He also worked on SAS Analytics Pro for AWS, which combines SAS Studio with AWS
+EC2 deployments, bringing SAS to cloud infrastructure.
+
+Technology stack: JavaScript, Dojo toolkit, Java, Spring, Spring Boot, XML, REST APIs.
+
+SENIOR SOFTWARE MANAGER — SAS Retail Space Management (2007–2013)
+-----------------------------------------------------------------
+Mike managed the development of SAS Retail Space Management, which integrated the
+MarketMax Space Planning product into the SAS ecosystem. He managed 4–6 software
+engineers and led the transition from waterfall to Agile methodology.
+
+He worked directly with large retail clients including Target, Walmart, and Publix
+on complex data management and SQL optimization challenges. Experience with large
+datasets, query optimization, and enterprise-scale data pipelines.
+
+SOFTWARE ENGINEER AND TECHNICAL LEAD — SAS Digital Marketing (2000–2007)
+-------------------------------------------------------------------------
+Mike pioneered and led the development of SAS Digital Marketing, a distributed
+server system for sending large volumes of personalized email campaigns. He led
+SAS's internal replacement of its external email marketing vendor with SAS Digital
+Marketing, saving SAS $50,000 per year in licensing costs.
+
+He developed several core SAS PROCs and datastep functions that shipped as part of
+Base SAS:
+- PROC HTTP
+- PROC SOAP
+- PWENCODE
+- XSL
+- METADATA
+- METACLEANSE
+
+He worked on core SAS user interfaces including SAS Display Manager System (DMS)
+and SAS Enterprise Guide.
+
+Languages at SAS: C, Java, PHP, SAS Macro, JavaScript (Dojo), SQL.
+
+OVERALL SAS EXPERTISE
+---------------------
+Mike has deep, hands-on experience with the SAS platform accumulated over nearly
+two decades at SAS Institute:
+- SAS 9.4 and SAS Viya
+- SAS Studio (web IDE — he built it)
+- SAS Enterprise Guide
+- SAS Grid Manager
+- SAS Macro language
+- Base SAS PROCs
+- SAS Analytics Pro for AWS
+- Posit Workbench, Posit Connect, Posit Package Manager (R ecosystem on SAS infra)
+- Deploying and administering SAS in regulated pharmaceutical cloud environments

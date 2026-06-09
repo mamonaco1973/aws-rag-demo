@@ -1,0 +1,60 @@
+Michael Monaco — Pharmaceutical Industry Experience
+===================================================
+
+Michael Monaco has deep experience in the pharmaceutical and life sciences industry
+spanning his time at Instem (2022–present) and d-wise (2020–2022). All of his
+consulting work at both companies was for pharmaceutical clients, CROs (Contract
+Research Organizations), and life sciences organizations operating under FDA
+compliance and GxP regulatory requirements.
+
+INSTEM — Pharmaceutical Cloud Consulting (2022–present)
+-------------------------------------------------------
+Instem is a pharmaceutical and life sciences software and services company.
+Every client Mike works with at Instem is a pharma company or CRO.
+
+Mike consulted at over two dozen pharmaceutical and CRO clients during his tenure
+at Instem, ranging from small boutique organizations to some of the largest
+pharmaceutical companies and contract research organizations in the world.
+Deployment sizes ranged from 6-user pilot environments to enterprise rollouts
+supporting over 2,000 users. Most clients adopted AWS, with some on Azure.
+
+Key pharma cloud work at Instem:
+- Architected AWS and Azure cloud migrations for SAS analytical applications in
+  major pharmaceutical companies using lift-and-shift and cloud modernization
+- Deployed and administered Posit Workbench, Posit Connect, and Posit Package
+  Manager in regulated pharmaceutical environments supporting FDA-compliant
+  analytics workloads
+- Designed disaster recovery implementations with RTO of 1 day and RPO of 1 hour
+- Implemented production/DR architectures across two AWS or Azure regions
+- Designed storage solutions using NetApp ONTAP with SnapMirror replication,
+  Nasuni, AWS Storage Gateway, Lustre FSX, and FSX for NetApp
+- Developed Docker containers for SAS 9.4 integrated with AWS EKS
+- Built Lambda-based cold start automation for SAS autoscaling clusters to
+  control compute costs while maintaining availability
+- Led Active Directory integrations for pharma clients: self-hosted AD, AWS
+  Managed AD, Azure AD/Entra ID, SSSD, Centrify, Okta SAML/OIDC, GPOs
+- Deployed infrastructure via Terraform and CloudFormation in CI/CD pipelines
+- Managed a team of 5 cloud consultants serving pharma clients
+
+D-WISE — Pharmaceutical SAS Grid Consulting (2020–2022)
+-------------------------------------------------------
+d-wise is a pharmaceutical technology consulting firm. All of Mike's work at
+d-wise was for pharmaceutical clients.
+
+- Supported and built SAS Grid deployments for pharma clients
+- Designed and implemented SAS Grid replacements using containerized SAS 9.4
+  on AWS EKS and Azure AKS, achieving on-demand autoscaling for pharma workloads
+- Built custom SAS macros for pharmaceutical clients
+- Optimized SAS and SQL code for pharma analytics workloads
+- Provided Linux administration and IT support to pharma clients
+
+REGULATED ENVIRONMENT EXPERTISE
+--------------------------------
+Mike has extensive experience working in highly regulated pharmaceutical and
+FDA-compliant cloud environments:
+- GxP compliance awareness
+- Validated system deployments
+- Change control processes
+- Audit trail requirements
+- Data integrity standards
+- DR and business continuity planning for regulated workloads

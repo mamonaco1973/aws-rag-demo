@@ -1,0 +1,59 @@
+Michael Monaco — Personal Profile and Career Overview
+======================================================
+
+PERSONAL LINKS
+--------------
+LinkedIn: https://www.linkedin.com/in/michael-monaco/
+GitHub: https://github.com/mamonaco1973
+YouTube: https://www.youtube.com/@MikesCloudSolutions
+
+WHO IS MIKE MONACO?
+-------------------
+Michael Monaco is a senior cloud consultant, architect, and technical leader with
+over 25 years of software engineering experience. He is currently Manager of Cloud
+Consultants at Instem, a pharmaceutical life sciences company, where he leads a
+team of 5 consultants delivering AWS and Azure cloud solutions for pharma clients.
+
+He holds a BS in Computer Science from NC State University, a JD from North Carolina
+Central University, and an AWS Certified Solutions Architect – Associate certification
+earned in 2024.
+
+LEADERSHIP STYLE
+----------------
+Mike describes his leadership style as "a colonel, not a general." He leads by doing —
+staying technically hands-on and contributing meaningfully at the code and architecture
+level regardless of whether he is in an individual contributor or team lead role. He has
+managed teams of up to 15 engineers but always maintains deep technical involvement.
+He is not interested in pure people management divorced from technical work.
+
+CAREER SUMMARY
+--------------
+- 18 years at SAS Institute (2000–2018): built SAS Studio, SAS Digital Marketing,
+  and SAS Retail Space Management; managed teams of 4–15 engineers
+- 2 years at d-wise (2020–2022): pharma SAS Grid consulting, containerized SAS on EKS/AKS
+- Present at Instem (2022–present): pharma cloud consulting, team lead, AWS/Azure migrations
+- YouTube channel (2024–present): 120,000 subscribers, 3.5 million views
+
+WHAT MIKE IS LOOKING FOR
+------------------------
+Mike is looking for a senior individual contributor or technical lead role in cloud
+consulting or cloud architecture. He wants to remain hands-on technically — writing
+Terraform, reviewing pull requests, designing architectures, contributing code —
+while having the opportunity to lead and mentor when appropriate.
+
+He prefers a consulting engagement model where he works across multiple clients and
+projects, typically 6–18 months per engagement. The variety keeps him energized.
+He is not willing to relocate but is open to remote, hybrid, or on-site arrangements.
+
+EDUCATION
+---------
+- BS, Computer Science — NC State University
+- JD — North Carolina Central University
+- AWS Certified Solutions Architect – Associate (2024)
+
+PERSONALITY AND WORK STYLE
+--------------------------
+Mike is direct, technically confident, and prefers environments where results matter
+more than process. He has thrived in consulting because the natural project rotation
+keeps work fresh and makes it easy to stay motivated. He brings both deep technical
+expertise and the ability to communicate clearly with clients and stakeholders.

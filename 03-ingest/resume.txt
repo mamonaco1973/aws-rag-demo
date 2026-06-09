@@ -26,9 +26,14 @@ relocate but is open to remote, hybrid, or on-site arrangements depending on the
 
 CURRENT ROLE — Instem, Manager of Cloud Consultants (November 2022 – present)
 ------------------------------------------------------------------------------
-Mike leads a team of 5 cloud consultants at Instem, a life sciences software and
-services company. His primary focus is architecting and delivering AWS and Azure cloud
-migrations for SAS analytical applications at pharmaceutical and CRO clients.
+Instem is a pharmaceutical and life sciences software company. Mike's work at Instem
+is entirely pharmaceutical industry work. All of his clients at Instem are pharma
+companies or CROs (Contract Research Organizations). This is a continuation of his
+pharmaceutical industry career that also includes his time at d-wise.
+
+Mike leads a team of 5 cloud consultants at Instem. His primary focus is architecting
+and delivering AWS and Azure cloud migrations for SAS analytical applications at
+pharmaceutical and CRO clients in highly regulated, FDA-compliant environments.
 
 Over his tenure at Instem, Mike has consulted at over two dozen pharma and CRO clients,
 ranging from small boutique organizations to some of the largest pharmaceutical companies
