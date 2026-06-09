@@ -546,30 +546,31 @@ ul { list-style: none; }
 
 .auth-form-panel {
   flex: 0 0 320px;
-  padding: 40px 32px;
+  padding: 56px 40px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 14px;
+  gap: 16px;
 }
 
 .auth-form-panel h2 {
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 700;
   margin: 0 0 4px;
+  color: #1a1a1a;
 }
 
 .auth-form-desc {
   font-size: 14px;
   color: var(--text-muted);
-  line-height: 1.5;
-  margin: 0 0 14px;
+  line-height: 1.6;
+  margin: 0 0 8px;
 }
 
 .auth-form-actions button {
   width: 100%;
-  padding: 10px 14px;
-  border-radius: var(--radius);
+  padding: 12px 14px;
+  border-radius: 6px;
   background: var(--bg-btn);
   color: var(--text-btn);
   font-size: 15px;
@@ -584,29 +585,30 @@ ul { list-style: none; }
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px 32px;
+  padding: 56px 40px;
   color: white;
 }
 
 .auth-preview-inner {
-  max-width: 280px;
+  max-width: 340px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
 .auth-preview-logo {
-  font-size: 28px;
+  font-size: 38px;
   font-weight: 700;
   letter-spacing: -0.5px;
   color: #fff;
+  line-height: 1.15;
 }
 
 .auth-preview-tagline {
-  font-size: 14px;
+  font-size: 15px;
   opacity: 0.85;
   line-height: 1.5;
-  margin: 0 0 10px;
+  margin: 0 0 6px;
 }
 
 .auth-preview-features {
@@ -619,7 +621,7 @@ ul { list-style: none; }
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  font-size: 13px;
+  font-size: 14px;
   opacity: 0.9;
   line-height: 1.4;
 }
@@ -628,4 +630,32 @@ ul { list-style: none; }
   flex-shrink: 0;
   margin-top: 1px;
   color: #a8c8fd;
+}
+
+.auth-preview-clouds {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  padding-top: 8px;
+}
+
+.cloud-provider-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  opacity: 0.8;
+}
+
+.cloud-provider-icon svg {
+  width: 44px;
+  height: 44px;
+}
+
+.cloud-provider-icon span {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.85);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
