@@ -46,11 +46,15 @@ echo "NOTE: Deploying backend infrastructure..."
 cd 01-core || { echo "ERROR: 01-core directory missing."; exit 1; }
 
 # ------------------------------------------------------------------------------
-# Install Lambda dependencies into the code directory so they are included
-# in the zip archive that Terraform packages and deploys.
+# Build numpy Lambda layer — numpy cannot load from a flat function directory
+# due to its source-tree detection check; it must live in a layer.
 # ------------------------------------------------------------------------------
+mkdir -p layer/python
+pip3 install numpy==1.26.4 -t layer/python -q
+
+# Install any remaining Lambda dependencies into the code directory
 cd code
-pip install -r requirements.txt -t .
+pip3 install -r requirements.txt -t . -q
 cd ..
 
 terraform init

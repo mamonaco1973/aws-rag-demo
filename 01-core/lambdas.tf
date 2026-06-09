@@ -1,4 +1,17 @@
 # ================================================================================
+# numpy Lambda layer
+# Installed separately because numpy's source-tree guard prevents it from
+# loading when placed in the same flat directory as the function handler.
+# ================================================================================
+
+resource "aws_lambda_layer_version" "numpy" {
+  filename            = data.archive_file.numpy_layer_zip.output_path
+  source_code_hash    = data.archive_file.numpy_layer_zip.output_base64sha256
+  layer_name          = "numpy-${random_id.bucket_suffix.hex}"
+  compatible_runtimes = ["python3.11"]
+}
+
+# ================================================================================
 # API Lambda function
 # Handles all synchronous API Gateway requests
 # ================================================================================
@@ -50,6 +63,7 @@ resource "aws_lambda_function" "worker" {
   role        = aws_iam_role.lambda_exec.arn
   timeout     = 300
   memory_size = 512
+  layers      = [aws_lambda_layer_version.numpy.arn]
 
   environment {
     variables = {
