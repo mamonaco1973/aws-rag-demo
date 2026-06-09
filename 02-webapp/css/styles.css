@@ -24,7 +24,7 @@
 
   --radius:        8px;
   --sidebar-width: 260px;
-  --input-max:     720px;
+  --input-max:     752px;
 }
 
 /* ============================================================================ */
@@ -278,6 +278,9 @@ ul { list-style: none; }
   display: flex;
   padding: 6px 24px;
   gap: 12px;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .msg-row--user {
@@ -289,7 +292,7 @@ ul { list-style: none; }
 }
 
 .msg-bubble {
-  max-width: 680px;
+  max-width: 640px;
   line-height: 1.65;
   font-size: 15px;
 }
