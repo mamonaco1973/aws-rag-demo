@@ -29,6 +29,7 @@ import logging
 import os
 import textwrap
 import time
+from pathlib import Path
 
 import boto3
 import numpy as np
@@ -292,6 +293,23 @@ def build_corpus(bucket, region):
         time.sleep(0.3)
 
     log.info("GitHub: %d total chunks", len(chunks))
+
+    # -------------------------------------------------------------------------
+    # Local documents (resume, bio, etc.)
+    # -------------------------------------------------------------------------
+
+    local_docs = Path(__file__).parent.glob("*.txt")
+    for doc_path in sorted(local_docs):
+        content = doc_path.read_text(encoding="utf-8")
+        before = len(chunks)
+        chunks.extend(chunk_text(
+            content,
+            source_url="https://www.linkedin.com/in/michael-monaco/",
+            repo="resume",
+            file_path=doc_path.name,
+            title=doc_path.stem,
+        ))
+        log.info("Local doc %s → %d chunks", doc_path.name, len(chunks) - before)
 
     # -------------------------------------------------------------------------
     # YouTube
