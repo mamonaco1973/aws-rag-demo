@@ -537,7 +537,6 @@ ul { list-style: none; }
 
 .modal-content--auth {
   display: flex;
-  flex-direction: row-reverse;
   border-radius: 10px;
   overflow: hidden;
   width: 820px;
