@@ -50,7 +50,13 @@ cd 01-core || { echo "ERROR: 01-core directory missing."; exit 1; }
 # due to its source-tree detection check; it must live in a layer.
 # ------------------------------------------------------------------------------
 mkdir -p layer/python
-pip3 install numpy==1.26.4 -t layer/python -q
+# Force the Python 3.11 manylinux wheel regardless of local Python version
+pip3 install numpy==1.26.4 \
+  --platform manylinux2014_x86_64 \
+  --only-binary=:all: \
+  --python-version 3.11 \
+  --implementation cp \
+  -t layer/python -q
 
 # Install any remaining Lambda dependencies into the code directory
 cd code
