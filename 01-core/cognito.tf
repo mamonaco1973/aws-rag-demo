@@ -72,6 +72,8 @@ resource "aws_cognito_user_pool_client" "rag_app" {
 
   callback_urls = ["${local.spa_origin}/callback.html"]
   logout_urls   = ["${local.spa_origin}/index.html"]
+
+  depends_on = [aws_cognito_identity_provider.google]
 }
 
 # ================================================================================
