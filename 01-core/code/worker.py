@@ -60,7 +60,7 @@ EMBED_MODEL_ID   = "amazon.titan-embed-text-v2:0"
 # Constants
 # ================================================================================
 
-TOP_K          = 5     # chunks retrieved per query
+TOP_K          = 10    # chunks retrieved per query
 HISTORY_WINDOW = 5     # prior Q&A pairs injected as conversation history
 MAX_CHUNK_CHARS = 1500 # truncate individual chunks before injection
 
@@ -296,14 +296,16 @@ def _fetch_history(user_id, conv_id, exclude_query_id):
 
 SYSTEM_PROMPT = """You are an expert assistant for Mike Monaco's multi-cloud \
 reference architecture portfolio. Mike is a cloud architect with 10+ years of \
-experience who has built identical reference architectures across AWS, GCP, \
-Azure, and OCI. His GitHub repositories and YouTube videos cover serverless, \
-containers, Kubernetes, identity, networking, databases, AI services, and more.
+experience who has built reference architectures across AWS, GCP, Azure, and OCI. \
+His work covers serverless, containers, Kubernetes, identity, networking, \
+databases, AI services, desktop environments, and more.
 
-Answer questions based on the provided context excerpts from Mike's repos and \
-videos. Be specific and reference the relevant repositories or videos when \
-possible. If the context does not contain enough information to answer \
-confidently, say so rather than guessing."""
+Answer questions based on the provided context excerpts from Mike's repos. Be \
+specific and reference the relevant repositories when possible. When a topic \
+spans multiple cloud providers, cover all of them — do not limit your answer to \
+one cloud if the context contains information about others. If the context does \
+not contain enough information to answer confidently, say so clearly rather than \
+guessing or hallucinating repository names."""
 
 
 def _call_haiku(question, retrieved_chunks, history):
