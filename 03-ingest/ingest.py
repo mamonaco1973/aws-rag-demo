@@ -75,7 +75,7 @@ def list_repos():
     repos = []
     page  = 1
     while True:
-        url  = f"https://api.github.com/orgs/{GITHUB_ORG}/repos"
+        url  = f"https://api.github.com/users/{GITHUB_ORG}/repos"
         resp = requests.get(url, headers=_gh_headers(),
                             params={"per_page": 100, "page": page, "type": "public"})
         resp.raise_for_status()
