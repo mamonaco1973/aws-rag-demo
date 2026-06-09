@@ -9,7 +9,8 @@
 #   3. Deploy backend (Lambdas, API Gateway, Cognito, SQS, DynamoDB, S3)
 #   4. Generate config.js for the SPA
 #   5. Upload the SPA to S3
-#   6. Run post-deploy validation
+#   6. Build and upload RAG corpus (GitHub + YouTube → Bedrock Titan → S3)
+#   7. Run post-deploy validation
 # ================================================================================
 
 # ================================================================================
@@ -79,6 +80,24 @@ envsubst < js/config.js.tmpl > js/config.js || {
 aws s3 cp . s3://${BUCKET_NAME} --recursive --exclude "*.tmpl"
 
 cd ..
+
+# ================================================================================
+# Corpus ingestion
+# ================================================================================
+
+echo "NOTE: Checking corpus ingestion..."
+
+export BACKEND_BUCKET=$(cd 01-core && terraform output -raw backend_bucket_name)
+
+if aws s3api head-object --bucket "${BACKEND_BUCKET}" --key "corpus/chunks.json" &>/dev/null; then
+  echo "NOTE: Corpus already ingested — skipping."
+else
+  echo "NOTE: Corpus not found — running ingestion..."
+  cd 03-ingest || { echo "ERROR: 03-ingest directory missing."; exit 1; }
+  pip install -r requirements.txt -q
+  python ingest.py --bucket "${BACKEND_BUCKET}" --region "${AWS_DEFAULT_REGION}"
+  cd ..
+fi
 
 # ================================================================================
 # Post-deploy validation

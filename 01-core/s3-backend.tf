@@ -35,3 +35,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "backend" {
     }
   }
 }
+
+output "backend_bucket_name" {
+  value = aws_s3_bucket.backend.bucket
+}

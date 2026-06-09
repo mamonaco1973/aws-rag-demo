@@ -17,7 +17,7 @@ tracked per user in DynamoDB with a 500K lifetime cap.
     01-core/           # Backend: Terraform + Python Lambda source
       code/            # Lambda source files
     02-webapp/         # Frontend: vanilla JS SPA deployed to S3
-    ingest/            # Local-only scripts — crawl GitHub + YouTube, build corpus
+    03-ingest/         # Corpus ingestion — crawl GitHub + YouTube, build corpus
 
 ### Request flow
 
@@ -80,10 +80,12 @@ Python deps install into the Lambda source dir so Terraform can zip them:
 cd 01-core/code && pip install -r requirements.txt -t .
 ```
 
-## Corpus ingestion (run locally before or after deploy)
+## Corpus ingestion
+
+Runs automatically as stage 3 of `apply.sh`. To run manually:
 
 ```bash
-cd ingest
+cd 03-ingest
 pip install -r requirements.txt
 python ingest.py --bucket <backend-bucket-name>
 ```
