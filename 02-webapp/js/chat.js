@@ -12,7 +12,8 @@ const POLL_MAX_ATTEMPTS = 60;   // 2 minutes before giving up
 /* Module state                                                                  */
 /* ---------------------------------------------------------------------------- */
 
-let _activePolls = {};   // queryId → intervalId
+let _activePolls    = {};   // queryId → intervalId
+let _cancelHandlers = {};   // queryId → onComplete callback
 
 /* ---------------------------------------------------------------------------- */
 /* Public: render a full conversation history into #chat-log                    */
@@ -53,6 +54,7 @@ export function appendUserBubble(text) {
 export function appendPendingBubble(convId, queryId, onComplete) {
   appendThinkingMessage(queryId);
   scrollToBottom();
+  _cancelHandlers[queryId] = onComplete;
   _startPolling(convId, queryId, onComplete);
 }
 
@@ -64,7 +66,8 @@ export function stopAllPolls() {
   for (const id of Object.values(_activePolls)) {
     clearInterval(id);
   }
-  _activePolls = {};
+  _activePolls    = {};
+  _cancelHandlers = {};
 }
 
 /* ---------------------------------------------------------------------------- */
@@ -92,11 +95,18 @@ function appendThinkingMessage(queryId) {
 
   const bubble = document.createElement("div");
   bubble.className = "msg-bubble";
-  bubble.innerHTML = `
-    <div class="thinking-dots">
-      <span></span><span></span><span></span>
-    </div>`;
 
+  const dots = document.createElement("div");
+  dots.className = "thinking-dots";
+  dots.innerHTML = "<span></span><span></span><span></span>";
+
+  const cancelBtn = document.createElement("button");
+  cancelBtn.className = "cancel-query-btn";
+  cancelBtn.textContent = "Cancel";
+  cancelBtn.addEventListener("click", () => _cancelQuery(queryId));
+
+  bubble.appendChild(dots);
+  bubble.appendChild(cancelBtn);
   row.appendChild(bubble);
   log.appendChild(row);
 }
@@ -210,6 +220,7 @@ function _startPolling(convId, queryId, onComplete) {
     // Give up after POLL_MAX_ATTEMPTS — worker likely crashed before updating status
     if (attempts > POLL_MAX_ATTEMPTS) {
       _stopPolling(queryId);
+      delete _cancelHandlers[queryId];
       appendErrorMessage("Query timed out. Please try again.", queryId);
       scrollToBottom();
       if (onComplete) onComplete({ status: "failed" });
@@ -221,11 +232,13 @@ function _startPolling(convId, queryId, onComplete) {
 
       if (q.status === "complete") {
         _stopPolling(queryId);
+        delete _cancelHandlers[queryId];
         appendAssistantMessage(q.answer || "", q.sources || [], queryId);
         scrollToBottom();
         if (onComplete) onComplete(q);
       } else if (q.status === "failed") {
         _stopPolling(queryId);
+        delete _cancelHandlers[queryId];
         appendErrorMessage("Query failed. Please try again.", queryId);
         scrollToBottom();
         if (onComplete) onComplete(q);
@@ -244,6 +257,15 @@ function _stopPolling(queryId) {
     clearInterval(_activePolls[queryId]);
     delete _activePolls[queryId];
   }
+}
+
+function _cancelQuery(queryId) {
+  _stopPolling(queryId);
+  const onComplete = _cancelHandlers[queryId];
+  delete _cancelHandlers[queryId];
+  appendErrorMessage("Query cancelled.", queryId);
+  scrollToBottom();
+  if (onComplete) onComplete({ status: "cancelled" });
 }
 
 /* ---------------------------------------------------------------------------- */

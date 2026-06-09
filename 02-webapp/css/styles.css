@@ -318,6 +318,18 @@ ul { list-style: none; }
   40%            { transform: translateY(-6px); opacity: 1; }
 }
 
+.cancel-query-btn {
+  display: block;
+  margin-top: 10px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.cancel-query-btn:hover { color: var(--ring-danger); }
+
 /* Sources section */
 .sources-section {
   margin-top: 10px;
