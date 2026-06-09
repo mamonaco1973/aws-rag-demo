@@ -201,7 +201,7 @@ def embed_chunks(chunks, region):
 
         body = json.dumps({
             "inputText":  chunk["text"][:8000],   # Titan v2 max input
-            "dimensions": 1536,
+            "dimensions": 1024,
             "normalize":  True,
         })
 
