@@ -8,8 +8,9 @@
 export AWS_DEFAULT_REGION="us-east-1"
 set -euo pipefail
 
-APP_URL=$(terraform -chdir=01-core output -raw frontend_website_url 2>/dev/null || true)
-API_BASE=$(terraform -chdir=01-core output -raw api_endpoint          2>/dev/null || true)
+CUSTOM_URL=$(terraform -chdir=01-core output -raw custom_domain_url     2>/dev/null || true)
+APP_URL=$(terraform -chdir=01-core output -raw frontend_website_url    2>/dev/null || true)
+API_BASE=$(terraform -chdir=01-core output -raw api_endpoint            2>/dev/null || true)
 COGNITO_UI=$(terraform -chdir=01-core output -raw cognito_hosted_ui_base 2>/dev/null || true)
 
 if [ -z "${APP_URL}" ] || [ -z "${API_BASE}" ]; then
@@ -19,8 +20,9 @@ fi
 
 echo ""
 echo "================================================================================="
-echo "  RAG Demo — Deployment validated!"
+echo "  Meet Mike — Deployment validated!"
 echo "================================================================================="
-echo "  App : ${APP_URL}/index.html"
+echo "  App : ${CUSTOM_URL}"
+echo "  S3  : ${APP_URL}/index.html"
 echo "================================================================================="
 echo ""

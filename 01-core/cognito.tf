@@ -3,11 +3,7 @@
 # ================================================================================
 
 locals {
-  spa_origin = format(
-    "https://%s.s3.%s.amazonaws.com",
-    aws_s3_bucket.frontend.bucket,
-    data.aws_region.current.region
-  )
+  spa_origin = "https://askmike.mikes-cloud-solutions.com"
 }
 
 # ================================================================================
