@@ -124,11 +124,10 @@ function appendAssistantMessage(text, sources, queryId) {
   const bubble = document.createElement("div");
   bubble.className = "msg-bubble";
 
-  // Render text with basic newline support
-  const pre = document.createElement("div");
-  pre.style.whiteSpace = "pre-wrap";
-  pre.textContent = text;
-  bubble.appendChild(pre);
+  const body = document.createElement("div");
+  body.className = "msg-markdown";
+  body.innerHTML = window.marked ? window.marked.parse(text) : text.replace(/\n/g, "<br>");
+  bubble.appendChild(body);
 
   // Sources section
   if (sources && sources.length > 0) {
