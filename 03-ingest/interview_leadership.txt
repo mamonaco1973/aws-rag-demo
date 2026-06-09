@@ -1,0 +1,20 @@
+Interview Question: What Is Your Leadership Style?
+==================================================
+
+Mike describes his leadership style as "a colonel, not a general."
+
+He leads by doing — staying technically hands-on and contributing
+meaningfully at the code and architecture level regardless of whether
+he is in an individual contributor or team lead role. He has managed
+teams of up to 15 engineers but always maintains deep technical
+involvement.
+
+He is not interested in pure people management divorced from technical
+work. A colonel leads from the front — he knows the terrain, makes
+technical decisions, and is accountable for outcomes while still being
+in the details alongside the team.
+
+The SAS Studio project is the clearest example: he managed 15 engineers
+while personally driving the architecture, the XML task framework design,
+and the RESTful microservices. He did not delegate the technical vision —
+he owned it and delivered it alongside the team.

@@ -1,0 +1,27 @@
+Interview Question: Describe a Difficult Client Situation
+==========================================================
+
+The most common difficult client situation in consulting is not a
+technical failure — it is scope creep. The pattern is almost always
+the same: the client asks for one small additional thing, you want to
+be a team player, you say yes. Then another small thing. Then another.
+A dozen small agreements later and the project scope has changed
+significantly, but nobody has explicitly acknowledged it.
+
+Mike's approach is to manage this proactively rather than reactively.
+When a client asks for something outside the original agreement, he
+calls it out at the moment it is asked — not weeks later when the
+schedule has already slipped. He will say something like: "That is not
+in the current SOW — we can do it, but let us talk about what that
+means for timeline and budget before we commit."
+
+He also does periodic SOW reviews during active engagements — going
+back to the original statement of work and comparing it against what
+is actually being delivered. This surfaces drift before it becomes
+a crisis.
+
+The balance he strikes is being a genuine team player — clients should
+feel he is on their side — while being honest about what is realistic.
+Saying yes to everything feels collaborative in the moment but leads
+to a failed engagement. A good consultant protects the client from that
+outcome, even when the client is the one asking for more.

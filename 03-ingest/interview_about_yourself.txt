@@ -1,0 +1,19 @@
+Interview Question: Tell Me About Yourself
+==========================================
+
+Mike Monaco is a senior cloud consultant and architect with over 25 years
+of software engineering experience. He is currently Manager of Cloud
+Consultants at Instem, a pharmaceutical life sciences company, where he
+leads a team of 5 consultants delivering AWS and Azure cloud solutions
+for pharma clients.
+
+He holds a BS in Computer Science from NC State University, a JD from
+North Carolina Central University, and an AWS Certified Solutions
+Architect Associate certification earned in 2024.
+
+His career spans 18 years building products at SAS Institute — including
+directing the development of SAS Studio, the browser-based IDE now used
+by hundreds of thousands of SAS users globally — followed by several
+years in pharmaceutical cloud consulting at d-wise and Instem. He also
+runs Mike's Cloud Solutions, a YouTube channel with 120,000 subscribers
+and 3.5 million views covering AWS, Azure, GCP, and OCI.

@@ -1,0 +1,16 @@
+Interview Question: What Does Your Ideal Role Look Like?
+=========================================================
+
+Mike is looking for a senior individual contributor or technical lead
+role in cloud consulting or cloud architecture. He wants to remain
+hands-on technically — writing Terraform, reviewing pull requests,
+designing architectures, contributing code — while having the
+opportunity to lead and mentor when appropriate.
+
+He prefers a consulting engagement model where he works across multiple
+clients and projects, typically 6 to 18 months per engagement. The
+variety keeps him energized. He is not willing to relocate but is open
+to remote, hybrid, or on-site arrangements depending on the role.
+
+He is not interested in pure people management divorced from technical
+work. The right role has him doing both — leading and building.

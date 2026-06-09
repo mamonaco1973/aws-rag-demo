@@ -1,0 +1,25 @@
+Interview Question: What Is Your Greatest Technical Accomplishment?
+===================================================================
+
+Mike's greatest technical accomplishment is SAS Studio.
+
+In 2012, Mike was asked to build a replacement for SAS Learning Edition —
+a lightweight interface for academic users. What started as SAS Studio
+for Academics became something far larger.
+
+The team conceived the product at SAS Global Forum and delivered the
+first working version in six months. It was well-received enough that
+SAS leadership decided to expand scope. Two years later, SAS Studio was
+no longer an academic tool — it was the default interface for SAS, used
+by hundreds of thousands of users globally and shipped as part of the
+core SAS platform.
+
+Mike managed a team of 15 engineers through that entire arc — but stayed
+deeply embedded in the architecture, the framework design, and the
+technical decisions. This is the clearest example of his "colonel, not
+a general" philosophy: he was accountable for the team's delivery while
+remaining hands-on at the code and architecture level.
+
+Going from "academic replacement product" to "default interface for the
+world's largest privately held software company" in under three years,
+with a team he built and led, is the accomplishment he is most proud of.

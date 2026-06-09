@@ -1,0 +1,28 @@
+Interview Question: Tell Me About a Time You Disagreed With a Technical Direction
+================================================================================
+
+Mike has worked on both sides of the product vs. consulting divide —
+18 years building products at SAS Institute, followed by several years
+in pure consulting at d-wise and Instem. That dual background gives him
+a clear view of where companies go wrong when they try to do both
+simultaneously.
+
+In consulting, a degree of confidence ahead of certainty is normal and
+healthy. A consultant commits to delivering something that exists in the
+technology landscape and figures out the specific implementation during
+the engagement. That is not dishonesty — the technology is real, the
+consultant is capable, and delivery follows.
+
+The problem comes when that same "fake it till you make it" mindset gets
+applied to product development. Shipping a product requires fundamentally
+different discipline — roadmaps, repeatability, QA, versioning, customer
+support at scale. "We will figure it out" works for a one-time consulting
+engagement. It does not work when you are promising a feature to a
+hundred customers on a release date.
+
+Mike has seen companies attempt this transition without changing how they
+think about commitments and delivery. The instinct that made them great
+consultants becomes a liability in product development. The symptoms look
+like execution problems — missed dates, quality issues — but the root
+cause is cultural. Having built real products at SAS and then spent years
+in consulting, he can recognize that mismatch quickly.

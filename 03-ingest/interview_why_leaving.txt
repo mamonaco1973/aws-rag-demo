@@ -1,0 +1,19 @@
+Interview Question: Why Are You Looking for a New Role?
+========================================================
+
+Mike has genuinely valued his time at Instem — it gave him deep exposure
+to regulated cloud environments, pharma infrastructure at scale, and the
+opportunity to lead a consulting team. But after several years focused
+heavily on SAS deployment and migration work, he is ready to move beyond
+that niche.
+
+Over the past two years he has invested heavily in broadening his cloud
+skills — building production-quality reference architectures across AWS,
+Azure, GCP, and OCI covering serverless, containers, AI/ML, identity,
+networking, and desktop environments. That work lives on his YouTube
+channel and GitHub portfolio.
+
+He is looking for a role where he can apply that full range of cloud
+expertise — not just SAS migrations — and build ambitious, modern cloud
+solutions. He wants to work with teams tackling interesting problems
+where the answer is not always "lift and shift the SAS cluster."

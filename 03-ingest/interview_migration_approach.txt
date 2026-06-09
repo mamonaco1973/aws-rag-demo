@@ -1,0 +1,31 @@
+Interview Question: How Do You Approach a New Cloud Migration Engagement?
+=========================================================================
+
+Every engagement starts with a discovery period. The goal is to deeply
+understand the client's domain, existing technology stack, and what
+success actually looks like for their stakeholders. This involves
+structured conversations with technical and business stakeholders, and
+sometimes researching technology specific to the client's environment.
+
+During discovery, Mike favors building MVPs — minimum viable products
+that give stakeholders hands-on experience with a reasonable
+representation of the final solution. This surfaces misaligned
+expectations early, when they are cheap to fix, rather than late when
+they are expensive.
+
+Discovery ends with a formal architecture document and validated
+requirements. In regulated pharmaceutical environments, this also
+includes settling on a validation strategy — drafting IQ (Installation
+Qualification), OQ (Operational Qualification), and PQ (Performance
+Qualification) documents before any production work begins.
+
+Execution follows a structured sequence: validation environment first,
+then production, then DR. Each phase is deliberate.
+
+At the end of the engagement, Mike prioritizes a formal support handoff
+before go-live. Consultants remain available during a hypercare period —
+a window where the delivery team is directly involved in support
+alongside the client's operations team. The length of hypercare depends
+on how well the client's support team is trained, which is directly
+tied to documentation quality. Better documentation means a shorter
+hypercare window and a cleaner exit.
