@@ -50,7 +50,7 @@ log = logging.getLogger(__name__)
 # ================================================================================
 
 GITHUB_ORG      = "mamonaco1973"
-YOUTUBE_CHANNEL = "UCTv4Hx-FZbNbCJkCjX5YWYA"   # Mike's Cloud Solutions
+YOUTUBE_CHANNEL = "UCWt1avrTjFVJKfCC5CHxOFg"
 EMBED_MODEL_ID  = "amazon.titan-embed-text-v2:0"
 CHUNK_SIZE      = 800    # target words per chunk
 CHUNK_OVERLAP   = 80     # words of overlap between consecutive chunks
