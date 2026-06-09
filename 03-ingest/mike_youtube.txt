@@ -1,0 +1,40 @@
+Michael Monaco — YouTube Channel Facts
+=======================================
+
+CHANNEL NAME: Mike's Cloud Solutions
+CHANNEL URL: https://www.youtube.com/@MikesCloudSolutions
+CHANNEL ID: UCWt1avrTjFVJKfCC5CHxOFg
+
+SUBSCRIBER COUNT: 120,000 subscribers
+TOTAL VIEWS: 3.5 million views
+AS OF: mid-2026
+
+Mike started his YouTube channel in November 2024. He reached 120,000
+subscribers and 3.5 million total views by mid-2026.
+
+MOST POPULAR VIDEO: AWS Workspace Bundle Builder (wbuilder)
+A tool for automating Amazon WorkSpaces bundle creation in a Packer-like
+workflow. Nothing like it existed publicly, which drove its popularity.
+
+SECOND MOST POPULAR: OpenClaw — a multi-cloud open source project deployed
+on AWS, Azure, and GCP.
+
+OTHER POPULAR CONTENT:
+- RStudio cluster deployment across AWS, Azure, and GCP
+- Kubernetes and container walkthroughs
+- Active Directory integration in cloud environments
+- Serverless architectures (Lambda, Azure Functions, Cloud Functions)
+- Cloud desktop / XRDP / VDI setups
+- OCI (Oracle Cloud Infrastructure) tutorials
+- Packer custom image builds
+- Terraform infrastructure as code walkthroughs
+
+CONTENT SPLIT: approximately 50% beginner-accessible tutorials,
+50% advanced architecture walkthroughs.
+
+GITHUB PORTFOLIO: https://github.com/mamonaco1973
+All videos have companion GitHub repositories with working code.
+
+PHILOSOPHY: Mike produces real-world, production-quality demonstrations
+rather than toy examples — the kind of content he wished existed when
+he was learning these platforms himself.
