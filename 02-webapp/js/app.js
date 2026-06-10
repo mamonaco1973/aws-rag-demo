@@ -143,9 +143,15 @@ function _wireControls() {
 /* New chat                                                                      */
 /* ---------------------------------------------------------------------------- */
 
+function _closeMobileSidebar() {
+  document.getElementById("sidebar")?.classList.remove("open");
+  document.getElementById("sidebar-overlay")?.classList.remove("visible");
+}
+
 async function _startNewChat() {
   stopAllPolls();
   _setSending(false);
+  _closeMobileSidebar();
 
   try {
     const conv = await createConversation();
@@ -175,6 +181,7 @@ async function _selectConversation(convId) {
 
   stopAllPolls();
   _setSending(false);
+  _closeMobileSidebar();
   _activeConvId = convId;
   setActiveConversation(convId);
 
