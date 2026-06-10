@@ -15,15 +15,20 @@ which eliminates the compromises that come with single-protocol storage.
 For regulated environments where data access patterns are non-negotiable,
 this is a hard requirement that NetApp meets cleanly.
 
-DISASTER RECOVERY WITH SNAPMIRROR
------------------------------------
+DISASTER RECOVERY WITH SNAPMIRROR — RTO AND RPO
+------------------------------------------------
 Mike has configured SnapMirror replication for DR deployments, using it
 to continuously replicate SAS Grid storage into a secondary AWS region.
-SnapMirror is NetApp's native replication technology — it handles
-incremental block-level replication efficiently across regions, which
-makes it practical for the large filesystems that SAS Grid environments
-require. This gives clients a recoverable DR posture without the
-complexity of building custom replication pipelines.
+The documented SOP targets are 8-hour RTO (Recovery Time Objective) and
+1-hour RPO (Recovery Point Objective). The actual RPO achieved via
+SnapMirror continuous replication is approximately 15 minutes —
+well inside the SOP requirement.
+
+SnapMirror handles incremental block-level replication efficiently
+across AWS regions, which makes it practical for the large filesystems
+that SAS Grid environments require. This gives clients a recoverable
+DR posture without the complexity of building custom replication
+pipelines.
 
 SCALE AND CLIENT BASE
 ----------------------

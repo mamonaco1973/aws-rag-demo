@@ -18,11 +18,15 @@ PHARMA CLOUD DELIVERY SCALE
   troubleshooting, cost optimization, reliability, documentation, and
   steady-state operations throughout the engagement lifecycle
 
-COST OPTIMIZATION
------------------
-- Built Lambda-based automation to power down idle SAS analytics compute
-  on weekends, reducing compute cost for those workloads by approximately
-  30%
+COST OPTIMIZATION — LAMBDA SCHEDULING / COLD START AUTOMATION
+--------------------------------------------------------------
+- Built Lambda-based scheduling automation (sometimes called Lambda cold
+  start automation) to power down idle SAS analytics EC2 compute on
+  weekends, reducing compute cost for those workloads by approximately
+  30%. The Lambda function stops and starts SAS Grid compute on a
+  schedule, eliminating weekend idle spend.
+- Additional right-sizing and storage optimization work across multiple
+  pharma client environments
 
 DISASTER RECOVERY AND STORAGE
 ------------------------------
