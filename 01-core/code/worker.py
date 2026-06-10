@@ -220,10 +220,18 @@ def _embed_query(question):
     return np.array(payload["embedding"], dtype=np.float32)
 
 
-def _cosine_search(query_vec, embeddings, top_k):
-    """Return indices of top_k most similar rows by cosine similarity."""
-    # Embeddings are already L2-normalised by Titan (normalize=True)
-    scores  = embeddings @ query_vec
+CAREER_BOOST = 1.3  # multiplier for local career-fact chunks vs GitHub/YouTube
+
+def _cosine_search(query_vec, embeddings, chunks, top_k):
+    """Return indices of top_k most similar rows by cosine similarity.
+
+    Career fact chunks (repo='resume') are boosted so they outrank
+    GitHub README chunks when both match the query.
+    """
+    scores = embeddings @ query_vec
+    for i, chunk in enumerate(chunks):
+        if chunk.get("repo") == "resume":
+            scores[i] *= CAREER_BOOST
     indices = np.argsort(scores)[::-1][:top_k]
     return indices.tolist(), scores[indices].tolist()
 
@@ -231,7 +239,7 @@ def _cosine_search(query_vec, embeddings, top_k):
 def _retrieve_chunks(question, chunks, embeddings):
     """Embed question and return top-k chunk dicts with scores."""
     query_vec = _embed_query(question)
-    indices, scores = _cosine_search(query_vec, embeddings, TOP_K)
+    indices, scores = _cosine_search(query_vec, embeddings, chunks, TOP_K)
 
     results = []
     for idx, score in zip(indices, scores):
