@@ -220,7 +220,7 @@ def _embed_query(question):
     return np.array(payload["embedding"], dtype=np.float32)
 
 
-CAREER_BOOST = 1.3  # multiplier for local career-fact chunks vs GitHub/YouTube
+CAREER_BOOST = 1.5  # multiplier for local career-fact chunks vs GitHub/YouTube
 
 def _cosine_search(query_vec, embeddings, chunks, top_k):
     """Return indices of top_k most similar rows by cosine similarity.
