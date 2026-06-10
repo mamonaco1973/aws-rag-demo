@@ -745,30 +745,53 @@ ul { list-style: none; }
     padding: 8px 12px 14px;
   }
 
-  /* Double font sizes for readability on small screens */
+  /* Override hardcoded font sizes in sidebar */
+  .conv-item {
+    font-size: 20px;
+    padding: 12px 14px;
+  }
+
+  .conv-group-label {
+    font-size: 16px;
+  }
+
+  .new-chat-btn {
+    font-size: 20px;
+    padding: 14px 16px;
+  }
+
+  .sidebar-sign-out {
+    font-size: 20px;
+  }
+
+  #token-usage-widget {
+    font-size: 18px;
+  }
+
+  /* 1.5x font sizes for readability on small screens */
   html, body {
-    font-size: 30px;
+    font-size: 22px;
   }
 
   .msg-bubble {
-    font-size: 30px;
+    font-size: 22px;
   }
 
   #chat-input {
-    font-size: 30px;
+    font-size: 22px;
   }
 
   .empty-logo {
-    font-size: 52px;
+    font-size: 39px;
   }
 
   .empty-tagline {
-    font-size: 30px;
+    font-size: 22px;
   }
 
   .starter-btn {
-    font-size: 27px;
-    padding: 16px 18px;
+    font-size: 20px;
+    padding: 14px 16px;
   }
 
   /* Stack login modal vertically — hide gradient panel */
