@@ -57,7 +57,7 @@ Not theoretical — these are deployed, working reference architectures.
 PUBLIC TECHNICAL PORTFOLIO
 ---------------------------
 100+ deployable reference architectures on GitHub. A YouTube channel
-with 120,000 subscribers and 3.5 million views. The portfolio
+with 120,000 subscribers and over 3.0 million views. The portfolio
 demonstrates repeatable automation and the ability to explain complex
 systems clearly to both technical and non-technical audiences. It is
 also evidence that the work is real — not resume claims, but code

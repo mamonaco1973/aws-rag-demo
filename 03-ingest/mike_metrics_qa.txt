@@ -120,7 +120,7 @@ publicly verifiable, production-quality Terraform implementations that
 anyone can clone, deploy, and inspect. The count can be verified
 directly on GitHub.
 
-The YouTube channel (120,000 subscribers, 3.5 million views) walks
+The YouTube channel (120,000 subscribers, over 3.0 million views) walks
 through the majority of them end to end, providing video walkthroughs
 of the architecture, the Terraform code, and the deployment process.
 

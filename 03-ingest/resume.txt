@@ -86,7 +86,7 @@ views as of mid-2026). GitHub portfolio: https://github.com/mamonaco1973
 LinkedIn: https://www.linkedin.com/in/michael-monaco/
 
 Mike's channel has 120,000 subscribers and over
-3.5 million total views as of mid-2026.
+over 3.0 million total views as of mid-2026.
 
 The content is approximately 50% beginner-accessible tutorials and 50% advanced
 architecture walkthroughs. Topics span AWS, Azure, GCP, and OCI, with a strong

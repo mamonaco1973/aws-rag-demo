@@ -69,5 +69,5 @@ PUBLIC PORTFOLIO
 ----------------
 - Built and published 100+ deployable cloud reference architectures
   across AWS, GCP, Azure, and OCI as open source on GitHub
-- YouTube channel with 120,000 subscribers and 3.5 million views
+- YouTube channel with 120,000 subscribers and over 3.0 million views
   demonstrating the architectures publicly

@@ -6,11 +6,11 @@ CHANNEL URL: https://www.youtube.com/@MikesCloudSolutions
 CHANNEL ID: UCWt1avrTjFVJKfCC5CHxOFg
 
 SUBSCRIBER COUNT: 120,000 subscribers
-TOTAL VIEWS: 3.5 million views
+TOTAL VIEWS: over 3.0 million views
 AS OF: mid-2026
 
 Mike started his YouTube channel in November 2024. He reached 120,000
-subscribers and 3.5 million total views by mid-2026.
+subscribers and over 3.0 million total views by mid-2026.
 
 MOST POPULAR VIDEO: AWS Workspace Bundle Builder (wbuilder)
 A tool for automating Amazon WorkSpaces bundle creation in a Packer-like
