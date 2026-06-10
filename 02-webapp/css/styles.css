@@ -725,6 +725,17 @@ ul { list-style: none; }
     color: var(--text-primary);
   }
 
+  /* Allow empty state and chat log to scroll on mobile */
+  #chat-main {
+    overflow-y: auto;
+  }
+
+  #empty-state {
+    overflow-y: auto;
+    justify-content: flex-start;
+    padding-top: 32px;
+  }
+
   /* Tighter chat padding on mobile */
   .msg-row {
     padding: 4px 12px;
