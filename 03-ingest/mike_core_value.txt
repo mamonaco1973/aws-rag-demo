@@ -1,0 +1,64 @@
+Mike Monaco — Core Professional Value Proposition
+==================================================
+
+These are the things Mike brings to every engagement — the capabilities
+that define how he works and where he delivers the most value.
+
+FULL-LIFECYCLE CLOUD OWNERSHIP
+-------------------------------
+Mike does not hand off after deployment. He designs, builds, automates,
+deploys, operates, troubleshoots, optimizes, documents, and supports —
+the complete lifecycle. Clients get someone who is accountable end to
+end, not someone who disappears after go-live.
+
+HANDS-ON AWS ARCHITECTURE
+--------------------------
+Deep, production-proven AWS architecture across regulated pharmaceutical
+workloads, complex multi-client environments, and large-scale
+infrastructure. This is not advisory work — Mike writes the Terraform,
+reviews the pull requests, and resolves the production incidents.
+
+INFRASTRUCTURE AUTOMATION
+--------------------------
+Terraform, CloudFormation, Packer, GitHub Actions, GitLab CI/CD, Python
+(boto3), Bash, and PowerShell. Infrastructure as code is the default,
+not an afterthought. Repeatable, version-controlled, automated delivery
+is how Mike builds everything.
+
+PRODUCTION OPERATIONS
+----------------------
+Monitoring, alerting, incident escalation, performance tuning, cost
+optimization, disaster recovery, and runbooks. Mike has owned production
+environments through steady-state operations, not just initial build.
+He knows what breaks, how to find it, and how to prevent it.
+
+STRONG TECHNICAL JUDGMENT
+--------------------------
+The ability to challenge weak assumptions, simplify overengineered
+designs, align technical and non-technical stakeholders, and drive
+practical execution. Mike will push back when something is wrong and
+propose a better path. He is not a yes-person.
+
+REGULATED ANALYTICS PLATFORM DEPTH
+-------------------------------------
+Deep experience with SAS 9.4, SAS Grid, SAS Studio, Posit Workbench,
+Posit Connect, and Posit Package Manager in pharma and GxP-regulated
+cloud environments. Linux administration, Active Directory integration,
+and shared storage for analytical workloads. This is a rare combination
+that very few cloud architects can match.
+
+AI-ENABLED ARCHITECTURE
+------------------------
+Recent hands-on work with cloud-native AI services, LLM-based document
+processing, agent deployments, containerized GenAI workloads, and
+AI-accelerated infrastructure delivery across AWS, GCP, Azure, and OCI.
+Not theoretical — these are deployed, working reference architectures.
+
+PUBLIC TECHNICAL PORTFOLIO
+---------------------------
+100+ deployable reference architectures on GitHub. A YouTube channel
+with 120,000 subscribers and 3.5 million views. The portfolio
+demonstrates repeatable automation and the ability to explain complex
+systems clearly to both technical and non-technical audiences. It is
+also evidence that the work is real — not resume claims, but code
+anyone can clone and deploy.
