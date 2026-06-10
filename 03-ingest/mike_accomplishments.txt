@@ -1,0 +1,73 @@
+Mike Monaco — Selected Accomplishments and Quantitative Impact
+==============================================================
+
+These are Mike's key career accomplishments with specific scale and
+outcome metrics.
+
+PHARMA CLOUD DELIVERY SCALE
+----------------------------
+- Designed, built, and operated production AWS environments across 25+
+  production SaaS tenants and 10+ bespoke cloud consulting engagements
+  for pharmaceutical and CRO clients under FDA-regulated requirements
+- Delivered regulated cloud solutions for 20+ pharmaceutical and CRO
+  clients, ranging from boutique analytics shops to some of the largest
+  pharma and CRO organizations in the world
+- Supported user populations ranging from small pilot teams to
+  enterprise rollouts of 2,000+ users
+- Owned AWS environments well beyond initial deployment — monitoring,
+  troubleshooting, cost optimization, reliability, documentation, and
+  steady-state operations throughout the engagement lifecycle
+
+COST OPTIMIZATION — LAMBDA SCHEDULING / COLD START AUTOMATION
+--------------------------------------------------------------
+- Built Lambda-based scheduling automation (sometimes called Lambda cold
+  start automation) to power down idle SAS analytics EC2 compute on
+  weekends, reducing compute cost for those workloads by approximately
+  30%. The Lambda function stops and starts SAS Grid compute on a
+  schedule, eliminating weekend idle spend.
+- Additional right-sizing and storage optimization work across multiple
+  pharma client environments
+
+DISASTER RECOVERY AND STORAGE
+------------------------------
+- Designed cloud disaster recovery and enterprise storage architectures
+  using S3, FSx for Lustre, FSx for NetApp ONTAP, Storage Gateway, and
+  Nasuni
+- Migrated hundreds of terabytes from on-premises Isilon to AWS
+- Implemented cross-region warm-standby DR meeting 8-hour RTO / 1-hour
+  RPO SOP targets, with approximately 15-minute actual RPO achieved via
+  NetApp SnapMirror continuous replication
+
+CONTAINERS AND PLATFORMS
+------------------------
+- Containerized SAS 9.4 workloads with Docker and integrated them with
+  Amazon EKS for orchestrated, scalable execution
+- Deployed and administered Posit Workbench, Posit Connect, and Posit
+  Package Manager in regulated cloud environments supporting pharma
+  analytics workloads
+
+SAS INSTITUTE PRODUCT WORK
+---------------------------
+- Led SAS Studio from inception through launch — one of the most widely
+  used SAS interfaces globally, shipped as part of the core SAS platform
+- Contributed to SAS Analytics Pro for AWS, combining SAS Studio with
+  EC2-based deployment patterns
+- Saved SAS Institute $50,000 per year by replacing third-party email
+  vendor with internally built SAS Digital Marketing system
+- Developed core SAS procedures and data-step functions shipped in
+  Base SAS: PROC HTTP, PROC SOAP, PWENCODE, XSL, METADATA, METACLEANSE
+
+LEADERSHIP
+----------
+- Led and mentored a team of 5 cloud consultants at Instem while
+  remaining hands-on with architecture, automation, troubleshooting,
+  and client delivery
+- Managed 12–15 software engineers at SAS Institute during SAS Studio
+  development; led team transition from waterfall to Agile
+
+PUBLIC PORTFOLIO
+----------------
+- Built and published 100+ deployable cloud reference architectures
+  across AWS, GCP, Azure, and OCI as open source on GitHub
+- YouTube channel with 120,000 subscribers and over 3.0 million views
+  demonstrating the architectures publicly

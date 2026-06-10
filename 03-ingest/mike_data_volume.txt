@@ -1,0 +1,26 @@
+Data Volume and Storage Footprint — Mike Monaco Production Experience
+======================================================================
+
+The data volume Mike has handled in production is hundreds of terabytes.
+
+Mike migrated hundreds of terabytes of clinical pharmaceutical data
+from on-premises Dell EMC Isilon storage to FSx for NetApp ONTAP in
+AWS using AWS DataSync. This is real production clinical trial data
+from large pharmaceutical organizations — not demo data, sample
+datasets, or reference architecture examples.
+
+This migration is distinct from any storage demonstrations or examples
+in Mike's public GitHub reference architectures. The hundreds of
+terabytes figure refers to actual production data migration work
+performed for pharmaceutical clients.
+
+Mike has designed and operated enterprise storage environments at scale:
+- FSx for NetApp ONTAP — multi-protocol NFS and SMB for SAS Grid
+- FSx for Lustre — high-performance compute storage
+- AWS Storage Gateway — hybrid on-premises to cloud storage
+- Nasuni — enterprise cloud file storage
+- Dell EMC Isilon — on-premises NAS (migration source)
+
+Cross-region DR replication via NetApp SnapMirror continuously
+replicates these large storage environments between AWS regions,
+achieving approximately 15-minute actual RPO.

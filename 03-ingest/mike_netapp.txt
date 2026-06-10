@@ -1,0 +1,54 @@
+Mike Monaco - NetApp and FSx for NetApp Experience
+===================================================
+
+Mike's NetApp experience is centered on FSx for NetApp ONTAP in AWS,
+deployed as the storage layer for SAS Grid environments in the
+pharmaceutical industry.
+
+WHY NETAPP FOR SAS GRID
+-----------------------
+The primary driver is multi-protocol support. Pharma clients require
+clinical data to be accessible from both Linux compute nodes running
+SAS Grid jobs and Windows workstations where analysts review results.
+NetApp ONTAP handles NFS and SMB simultaneously on the same filesystem,
+which eliminates the compromises that come with single-protocol storage.
+For regulated environments where data access patterns are non-negotiable,
+this is a hard requirement that NetApp meets cleanly.
+
+DISASTER RECOVERY WITH SNAPMIRROR — RTO AND RPO
+------------------------------------------------
+Mike has configured SnapMirror replication for DR deployments, using it
+to continuously replicate SAS Grid storage into a secondary AWS region.
+The documented SOP targets are 8-hour RTO (Recovery Time Objective) and
+1-hour RPO (Recovery Point Objective). The actual RPO achieved via
+SnapMirror continuous replication is approximately 15 minutes —
+well inside the SOP requirement.
+
+SnapMirror handles incremental block-level replication efficiently
+across AWS regions, which makes it practical for the large filesystems
+that SAS Grid environments require. This gives clients a recoverable
+DR posture without the complexity of building custom replication
+pipelines.
+
+SCALE AND CLIENT BASE
+----------------------
+Mike has implemented FSx for NetApp across approximately six large
+pharmaceutical organizations. These are enterprise-scale deployments,
+not proof-of-concept work — production SAS Grid environments with real
+clinical workloads and compliance requirements.
+
+DATA MIGRATION
+--------------
+Mike has also performed large-scale data migration from on-premise Dell
+EMC Isilon storage to FSx for NetApp in AWS using AWS DataSync, moving
+hundreds of terabytes of clinical data. This is a common transition
+pattern for pharma organizations consolidating on-premise SAS
+infrastructure into AWS.
+
+SUMMARY
+-------
+Mike's NetApp experience is practical and production-proven: FSx for
+ONTAP as SAS Grid storage, SnapMirror for cross-region DR, and DataSync
+for on-premise-to-cloud migration at scale. The context is always
+regulated pharmaceutical environments where storage reliability and
+multi-protocol access are not optional.

@@ -1,0 +1,90 @@
+How Mike Built This App — Meet Mike AI Interview Assistant
+==========================================================
+
+This application — Meet Mike — is a ChatGPT-style AI assistant built
+by Mike Monaco to demonstrate his cloud architecture skills and serve
+as an interactive interview tool. It is fully serverless, built entirely
+on AWS with no EC2 instances.
+
+The source code is publicly available at:
+https://github.com/mamonaco1973/aws-rag-demo
+
+ARCHITECTURE OVERVIEW
+----------------------
+The app uses a Retrieval-Augmented Generation (RAG) pattern:
+
+1. A one-time ingest script loads content from three sources:
+   - Focused single-topic .txt files covering Mike's career, pharma
+     experience, SAS background, interview Q&A, YouTube channel, and
+     contact info
+   - README.md and CLAUDE.md from all public mamonaco1973 GitHub repos
+   - Video descriptions from Mike's Cloud Solutions YouTube channel
+
+   Each source is chunked, embedded via Amazon Bedrock Titan Embeddings
+   v2, and stored as a vector corpus (chunks.json + embeddings.npy) in
+   Amazon S3.
+
+2. Users authenticate via Amazon Cognito (OAuth2/PKCE flow) and ask
+   questions in a ChatGPT-style interface.
+
+3. Each question is embedded using Titan Embeddings v2, compared against
+   the stored corpus via cosine similarity, and the top 5 matching
+   chunks are injected as context into a Bedrock Claude Haiku prompt.
+
+4. The last 5 Q&A pairs from the conversation are included as history,
+   making conversations stateful across multiple turns.
+
+5. Answers are processed asynchronously via Amazon SQS — the frontend
+   polls until the worker Lambda completes.
+
+AWS SERVICES USED
+-----------------
+- Amazon Bedrock — Titan Embeddings v2 (embedding) and Claude Haiku
+  (answer generation)
+- AWS Lambda — API handler and SQS worker (fully serverless)
+- Amazon API Gateway — HTTP API with Cognito JWT authorization
+- Amazon DynamoDB — single-table design for users, conversations, and
+  query records
+- Amazon SQS — decouples the API Lambda from the worker Lambda
+- Amazon S3 — stores the vector corpus, questions, answers, and the
+  static web frontend
+- Amazon Cognito — user authentication with Google IdP support
+- Amazon CloudFront — CDN for the frontend SPA
+- Terraform — all infrastructure provisioned as code
+
+REQUEST FLOW
+------------
+User submits a question
+  → API Lambda writes question.txt to S3
+  → DynamoDB record created (status=pending)
+  → SQS message enqueued
+  → Worker Lambda triggered:
+      loads corpus embeddings from S3
+      embeds query via Titan v2
+      cosine similarity search → top 5 chunks
+      fetches last 5 Q&A pairs as conversation history
+      calls Claude Haiku with context + history + question
+      writes answer.txt and sources.json to S3
+      updates DynamoDB record (status=complete)
+      tracks token usage per user
+  → Frontend poll detects completion and renders answer
+
+DATA MODEL
+----------
+DynamoDB single-table design:
+- USER#<id> / USER#USAGE  — tokens used, 500K lifetime limit
+- USER#<id> / CONV#<id>   — conversation title and timestamps
+- USER#<id> / QUERY#<c>#<q> — query status and S3 key pointers
+
+DEPLOYMENT
+----------
+A single apply.sh script handles the full deployment:
+1. Validates environment and AWS credentials
+2. Builds the numpy Lambda layer
+3. Deploys all infrastructure via Terraform
+4. Uploads the SPA to S3 and generates config.js
+5. Runs corpus ingestion
+6. Validates the deployment
+
+The live app is available at:
+https://askmike.mikes-cloud-solutions.com

@@ -5,15 +5,27 @@
 /* ============================================================================ */
 
 import { CONFIG } from "./config.js";
-import { getAccessToken } from "./auth.js";
+import { getAccessToken, isTokenExpired, refreshTokens, clearTokens } from "./auth.js";
 
 const BASE = CONFIG.API_BASE_URL;
 
 /* ---------------------------------------------------------------------------- */
 /* Internal fetch wrapper                                                        */
+/* Silently refreshes the access token if expired before sending the request.   */
+/* On a 401 response, attempts one refresh and retries before giving up.        */
 /* ---------------------------------------------------------------------------- */
 
-async function apiFetch(method, path, body) {
+async function apiFetch(method, path, body, _retry = false) {
+  // Proactively refresh if the token is expired or about to expire
+  if (isTokenExpired(getAccessToken())) {
+    const ok = await refreshTokens();
+    if (!ok) {
+      clearTokens();
+      window.location.reload();
+      return;
+    }
+  }
+
   const token = getAccessToken();
   const opts = {
     method,
@@ -25,6 +37,18 @@ async function apiFetch(method, path, body) {
   };
 
   const res = await fetch(`${BASE}${path}`, opts);
+
+  // On 401, attempt one silent refresh and retry
+  if (res.status === 401 && !_retry) {
+    const ok = await refreshTokens();
+    if (!ok) {
+      clearTokens();
+      window.location.reload();
+      return;
+    }
+    return apiFetch(method, path, body, true);
+  }
+
   const data = await res.json();
 
   if (!res.ok) {

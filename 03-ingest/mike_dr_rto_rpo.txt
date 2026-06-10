@@ -1,0 +1,23 @@
+DR RTO and RPO — Mike Monaco Disaster Recovery Experience
+==========================================================
+
+Mike's disaster recovery RTO and RPO numbers from production
+pharmaceutical client engagements:
+
+- RTO (Recovery Time Objective): 8 hours
+- RPO (Recovery Point Objective): 1 hour (documented SOP requirement)
+- Actual RPO achieved: approximately 15 minutes
+
+The actual RPO of ~15 minutes is achieved via NetApp SnapMirror
+continuous cross-region replication — significantly better than the
+1-hour SOP requirement.
+
+These are production DR targets for regulated pharmaceutical
+environments, not estimates or reference architecture examples.
+The architecture is cross-region warm-standby on AWS using FSx for
+NetApp ONTAP with SnapMirror replicating storage continuously between
+AWS regions.
+
+RTO of 8 hours and RPO of 1 hour are the contractual SOP targets.
+The ~15-minute actual RPO via SnapMirror gives clients a comfortable
+margin well inside their compliance requirement.

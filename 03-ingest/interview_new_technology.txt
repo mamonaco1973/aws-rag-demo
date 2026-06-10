@@ -1,0 +1,34 @@
+Interview Question: What If You Haven't Done Something Before?
+=============================================================
+
+When asked about a technology or skill he has not used before, Mike's
+honest answer is: "I haven't done that yet, but how hard could it be?"
+
+That is not overconfidence. It is a philosophy grounded in a consistent
+track record of picking up unfamiliar technology, building something real
+with it, and shipping it. The YouTube channel is the proof — every video
+represents a technology Mike decided to learn by doing. Multi-cloud
+Kubernetes, RStudio clusters with shared NFS storage and managed
+directories, serverless MCP services, AI image transformation pipelines,
+queue-driven async workers across four cloud providers. None of these
+were already in his back pocket when he started.
+
+The approach is always the same:
+- Read the documentation and understand the design intent
+- Find the constraints and sharp edges before they find you
+- Build a working reference implementation — not a tutorial copy, a
+  real architecture that would survive production
+- Verify it, document it, explain it publicly
+
+Mike does not treat "I haven't done this" as a ceiling. It is just the
+starting point. The question he actually cares about is: what does good
+look like for this, and how quickly can he get there?
+
+In consulting engagements this mindset matters practically. Clients do
+not always give you six months to get comfortable with their stack
+before expectations kick in. Mike's value is the ability to come up to
+speed fast, ask the right questions early, and deliver something solid
+without requiring a long runway.
+
+The attitude is not "it will be easy." Sometimes it is genuinely hard.
+The point is that hard has never been a reason to stop.

@@ -1,0 +1,20 @@
+Number of Users Supported — Mike Monaco Production Experience
+==============================================================
+
+The number of users Mike has supported in production is up to 2,000+
+per client engagement.
+
+Across 20+ pharmaceutical and CRO clients, Mike has supported user
+populations ranging from small pilot teams of a dozen users to large
+enterprise rollouts of 2,000+ active users. These are production
+end-users of SAS analytics platforms and cloud environments — not
+demo users, test accounts, or provisioned lab users.
+
+The 2,000+ figure is the largest single client deployment. Most
+engagements ranged from dozens to several hundred active users
+accessing SAS Grid, Posit Workbench, or cloud-hosted analytics
+platforms in regulated pharmaceutical environments.
+
+This is distinct from test users or demo accounts that appear in
+reference architectures. Mike's user support experience is in
+production pharmaceutical systems with real clinical workloads.

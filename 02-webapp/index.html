@@ -62,10 +62,29 @@
     </aside>
 
     <!-- ============================================================== -->
+    <!-- Sidebar overlay — mobile only, dims content behind open sidebar -->
+    <!-- ============================================================== -->
+
+    <div id="sidebar-overlay"></div>
+
+    <!-- ============================================================== -->
     <!-- Main chat area                                                  -->
     <!-- ============================================================== -->
 
     <main id="chat-main">
+
+      <div id="mobile-topbar">
+        <button id="sidebar-toggle" title="Menu">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+               viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <span id="mobile-topbar-title">Meet Mike</span>
+      </div>
 
       <!-- Empty state — shown when no conversation is selected -->
       <div id="empty-state">
@@ -74,14 +93,12 @@
           Ask anything about Mike's experience, projects, and cloud work.
         </p>
         <div class="starter-grid">
-          <button class="starter-btn" data-q="How does serverless authentication work across your cloud projects?">How does serverless authentication work?</button>
-          <button class="starter-btn" data-q="Do you have any AI or machine learning examples in your portfolio?">Do you have any AI examples?</button>
-          <button class="starter-btn" data-q="Tell me about Active Directory integration in the cloud. What approaches have you used and which clouds do you support?">Tell me about Active Directory in the cloud</button>
-          <button class="starter-btn" data-q="Tell me about running RStudio in the cloud. What architectures have you built and which clouds do you support?">Tell me about running RStudio in the cloud</button>
-          <button class="starter-btn" data-q="What kind of role is Mike looking for and what is his preferred working style?">What kind of role is Mike looking for?</button>
-          <button class="starter-btn" data-q="What is Mike's experience in the pharmaceutical industry and regulated environments?">Tell me about Mike's pharma experience</button>
+          <button class="starter-btn" data-q="Describe Mike's leadership style. How does he lead teams and stay hands-on technically?">Describe Mike's leadership style</button>
+          <button class="starter-btn" data-q="What is Mike's core value proposition? What does he bring to a role that other cloud architects don't?">What is Mike's core value proposition?</button>
+          <button class="starter-btn" data-q="What is Mike's greatest technical accomplishment?">What is Mike's greatest accomplishment?</button>
           <button class="starter-btn" data-q="Why is Mike looking for a new role and what is he hoping to do next?">Why is Mike looking for a new role?</button>
-          <button class="starter-btn" data-q="What is Mike's greatest technical accomplishment?">What is Mike's greatest technical accomplishment?</button>
+          <button class="starter-btn" data-q="What kind of role is Mike looking for and what is his preferred working style?">What kind of role is Mike looking for?</button>
+          <button class="starter-btn" data-q="How did Mike build this app? What AWS services does it use and how does the RAG architecture work?">How did Mike build this app?</button>
         </div>
       </div>
 
@@ -126,7 +143,7 @@
         <div class="auth-preview-inner">
           <div class="auth-preview-logo">Meet Mike</div>
           <p class="auth-preview-tagline">
-            Senior cloud consultant, architect, and content creator across AWS, GCP, Azure, and OCI.
+            Cloud Architect and content creator across AWS, GCP, Azure, and OCI.
           </p>
           <ul class="auth-preview-features">
             <li>

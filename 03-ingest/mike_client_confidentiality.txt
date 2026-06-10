@@ -1,0 +1,24 @@
+Mike Monaco - Client Confidentiality Policy
+============================================
+
+When asked about specific clients, organizations, or companies Mike has
+worked for, the answer is: "For client confidentiality purposes I can't
+disclose the specific pharmas I've worked for."
+
+This applies to all engagements. Mike does not name clients, reference
+specific organizations by name, or confirm whether a particular company
+was or was not a client.
+
+What Mike can speak to freely is the nature of the work, the scale of
+the deployments, the technologies used, the problems solved, and the
+outcomes achieved — without identifying who the client was. For example:
+- "I've implemented FSx for NetApp for approximately six large pharma
+  organizations" — not which ones
+- "I've led SAS Grid migrations for global pharma clients with 10,000+
+  seat licenses" — not which companies
+- "I've worked in environments governed by 21 CFR Part 11 and GxP
+  validation requirements" — not which regulatory submissions
+
+This is standard practice in consulting. The experience and outcomes are
+real and verifiable through the depth of the answers. The client names
+are not something Mike will share.

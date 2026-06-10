@@ -662,3 +662,168 @@ ul { list-style: none; }
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
+
+/* ============================================================================ */
+/* Mobile responsive                                                             */
+/* ============================================================================ */
+
+#mobile-topbar {
+  display: none;
+}
+
+#sidebar-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+#sidebar-toggle:hover { background: var(--bg-hover); }
+
+@media (max-width: 640px) {
+
+  /* Hide sidebar by default on mobile — shown when toggled */
+  #sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+  }
+
+  #sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* Hamburger toggle visible on mobile */
+  #sidebar-toggle {
+    display: flex;
+  }
+
+  /* Mobile top bar above chat */
+  #chat-main {
+    position: relative;
+  }
+
+  #mobile-topbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  #mobile-topbar-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  /* Allow empty state and chat log to scroll on mobile */
+  #chat-main {
+    overflow-y: auto;
+  }
+
+  #empty-state {
+    overflow-y: auto;
+    justify-content: flex-start;
+    padding-top: 32px;
+  }
+
+  /* Tighter chat padding on mobile */
+  .msg-row {
+    padding: 4px 12px;
+  }
+
+  #input-bar {
+    padding: 8px 12px 14px;
+  }
+
+  /* Override hardcoded font sizes in sidebar */
+  .conv-item {
+    font-size: 20px;
+    padding: 12px 14px;
+  }
+
+  .conv-group-label {
+    font-size: 16px;
+  }
+
+  .new-chat-btn {
+    font-size: 20px;
+    padding: 14px 16px;
+  }
+
+  .sidebar-sign-out {
+    font-size: 20px;
+  }
+
+  #token-usage-widget {
+    font-size: 18px;
+  }
+
+  /* 1.5x font sizes for readability on small screens */
+  html, body {
+    font-size: 22px;
+  }
+
+  .msg-bubble {
+    font-size: 22px;
+  }
+
+  #chat-input {
+    font-size: 22px;
+  }
+
+  .empty-logo {
+    font-size: 39px;
+  }
+
+  .empty-tagline {
+    font-size: 22px;
+  }
+
+  .starter-btn {
+    font-size: 20px;
+    padding: 14px 16px;
+  }
+
+  /* Stack login modal vertically — hide gradient panel */
+  .modal-content--auth {
+    flex-direction: column;
+    width: 95vw;
+  }
+
+  .auth-preview-panel {
+    display: none;
+  }
+
+  .auth-form-panel {
+    padding: 40px 28px;
+  }
+
+  /* Starter grid single column on mobile */
+  .starter-grid {
+    grid-template-columns: 1fr;
+    max-width: 100%;
+  }
+
+  /* Dim overlay when sidebar is open */
+  #sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    z-index: 49;
+  }
+
+  #sidebar-overlay.visible {
+    display: block;
+  }
+}

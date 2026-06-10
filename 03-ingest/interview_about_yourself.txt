@@ -16,4 +16,4 @@ directing the development of SAS Studio, the browser-based IDE now used
 by hundreds of thousands of SAS users globally — followed by several
 years in pharmaceutical cloud consulting at d-wise and Instem. He also
 runs Mike's Cloud Solutions, a YouTube channel with 120,000 subscribers
-and 3.5 million views covering AWS, Azure, GCP, and OCI.
+and over 3.0 million views covering AWS, Azure, GCP, and OCI.
