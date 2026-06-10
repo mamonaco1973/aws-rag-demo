@@ -1,0 +1,83 @@
+Mike Monaco — Key Metrics and Quantitative Impact (Hiring Manager FAQ)
+======================================================================
+
+These are the nine questions hiring managers and technical evaluators
+most commonly ask about production cloud experience, with direct answers
+from Mike's background.
+
+QUESTION: How many AWS environments has Mike built or supported?
+----------------------------------------------------------------
+Mike has designed, built, and operated AWS environments across 25+
+production SaaS tenants and 10+ bespoke cloud consulting engagements
+for pharmaceutical and CRO clients under FDA-regulated requirements.
+
+QUESTION: How many pharma clients has Mike worked with?
+--------------------------------------------------------
+Mike has delivered regulated cloud solutions for 20+ pharmaceutical and
+CRO clients — ranging from boutique analytics shops to some of the
+largest pharma and CRO organizations in the world. User populations
+ranged from small pilot teams to enterprise rollouts of 2,000+ users.
+
+QUESTION: What deployment time reduction has Mike achieved through automation?
+-------------------------------------------------------------------------------
+In regulated pharmaceutical environments, the bottleneck in delivery is
+never provisioning speed — it is validation: IQ/OQ sign-offs, change
+control, and documentation. A time-to-provision number would be
+misleading to anyone who knows GxP delivery.
+
+What automation actually delivers in this context is standardization and
+repeatability. Mike automated one-off client builds into validated,
+reusable reference patterns using Terraform, CloudFormation, Packer,
+GitHub Actions, and GitLab CI/CD — eliminating the rework that comes
+from building each environment from scratch and reducing defects that
+emerge from inconsistent manual processes. The value is quality and
+consistency, not raw speed.
+
+QUESTION: What cloud cost savings has Mike achieved?
+-----------------------------------------------------
+Mike built Lambda-based automation to power down idle SAS analytics
+compute on weekends, reducing compute cost for those workloads by
+approximately 30%. Additional cost optimization work included
+right-sizing, storage architecture decisions (FSx tier selection,
+lifecycle policies), and capacity planning for multi-client environments.
+
+QUESTION: How many users has Mike supported?
+---------------------------------------------
+User populations ranged from small pilot teams to enterprise rollouts
+supporting 2,000+ users across 20+ pharmaceutical and CRO clients.
+
+QUESTION: What is Mike's data volume and storage footprint experience?
+----------------------------------------------------------------------
+Mike migrated hundreds of terabytes of clinical data from on-premises
+Dell EMC Isilon storage to FSx for NetApp ONTAP in AWS using AWS
+DataSync. He has designed and operated enterprise storage environments
+using FSx for NetApp ONTAP, FSx for Lustre, AWS Storage Gateway, and
+Nasuni across multiple large pharmaceutical organizations.
+
+QUESTION: What are Mike's DR RTO and RPO targets?
+-------------------------------------------------
+Mike has designed and implemented cross-region warm-standby disaster
+recovery architectures meeting documented SOP targets of 8-hour RTO
+and 1-hour RPO. Actual RPO achieved via NetApp SnapMirror continuous
+replication is approximately 15 minutes — significantly better than
+the SOP requirement.
+
+QUESTION: How many production incidents has Mike resolved?
+----------------------------------------------------------
+Mike serves as the senior AWS technical owner and escalation point
+across client engineering, infrastructure, security, and application
+teams — resolving complex production issues that are beyond the scope
+of frontline support. He does not track a ticket count, and claiming
+one would be misleading because his role is escalation and architecture,
+not tier-1 resolution. The signal here is seniority: he is the person
+other people escalate to.
+
+QUESTION: How many reusable Terraform modules or reference architectures has Mike built?
+----------------------------------------------------------------------------------------
+Mike has built and published 100+ deployable reference architectures
+across AWS, GCP, Azure, and OCI as open source on GitHub at
+github.com/mamonaco1973. These are not internal modules — they are
+publicly verifiable, production-quality implementations that anyone can
+clone, deploy, and inspect. The count is checkable. The YouTube channel
+(120,000 subscribers, 3.5 million views) walks through the majority of
+them end to end.
