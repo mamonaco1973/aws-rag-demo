@@ -94,6 +94,21 @@ function _wireControls() {
   // New chat button
   document.getElementById("btn-new-chat").addEventListener("click", _startNewChat);
 
+  // Mobile sidebar toggle
+  const toggle  = document.getElementById("sidebar-toggle");
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("sidebar-overlay");
+  if (toggle) {
+    toggle.addEventListener("click", () => {
+      sidebar.classList.toggle("open");
+      overlay.classList.toggle("visible");
+    });
+    overlay.addEventListener("click", () => {
+      sidebar.classList.remove("open");
+      overlay.classList.remove("visible");
+    });
+  }
+
   // Sign out
   document.getElementById("btn-sign-out").addEventListener("click", () => {
     clearTokens();
