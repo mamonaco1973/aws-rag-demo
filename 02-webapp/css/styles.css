@@ -734,6 +734,32 @@ ul { list-style: none; }
     padding: 8px 12px 14px;
   }
 
+  /* Double font sizes for readability on small screens */
+  html, body {
+    font-size: 30px;
+  }
+
+  .msg-bubble {
+    font-size: 30px;
+  }
+
+  #chat-input {
+    font-size: 30px;
+  }
+
+  .empty-logo {
+    font-size: 52px;
+  }
+
+  .empty-tagline {
+    font-size: 30px;
+  }
+
+  .starter-btn {
+    font-size: 27px;
+    padding: 16px 18px;
+  }
+
   /* Stack login modal vertically — hide gradient panel */
   .modal-content--auth {
     flex-direction: column;
